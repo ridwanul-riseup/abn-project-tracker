@@ -13,7 +13,6 @@ use App\Models\Environment;
 use App\Models\FigmaReference;
 use App\Models\Integration;
 use App\Models\Module;
-use App\Models\Product;
 use App\Models\Repository;
 use App\Models\Task;
 use App\Support\Audit;
@@ -58,13 +57,16 @@ class RepositoryController extends Controller
 
     public function create(Request $request): View
     {
-        $product = Product::query()->find($request->integer('product_id'));
-        Gate::authorize('inventory.create-in', $product ?? $this->firstWritableProduct());
-
-        return view('repositories.form', $this->formData(new Repository([
-            'product_id' => $product?->id,
+        $repository = new Repository([
+            'product_id' => $request->integer('product_id') ?: null,
             'application_id' => $request->integer('application_id') ?: null,
-        ])));
+        ]);
+        $scope = $this->creationScope($repository->product_id, $repository->application_id);
+        abort_unless($scope !== null
+            ? Gate::allows('create-in', ['repositories.create', $scope])
+            : $this->productChoicesFor('repositories.create', viaApplications: true) !== [], 403);
+
+        return view('repositories.form', $this->formData($repository));
     }
 
     public function store(RepositoryRequest $request): RedirectResponse
@@ -72,7 +74,7 @@ class RepositoryController extends Controller
         $data = $request->validated();
         $environments = $data['environment_ids'] ?? [];
         unset($data['environment_ids']);
-        if (! Gate::allows('repositories.view_sensitive')) {
+        if (! Gate::allows('repositories.view_sensitive', $this->creationScope((int) $data['product_id'], (int) ($data['application_id'] ?? 0) ?: null))) {
             unset($data['sensitive_notes']);
         }
 
@@ -175,7 +177,7 @@ class RepositoryController extends Controller
 
         return [
             'repository' => $repository,
-            'products' => $this->productChoices(writableOnly: true),
+            'products' => $this->formProducts($repository),
             'applications' => Application::query()->visibleTo($user)->notArchived()->with('product')->orderBy('code')->get()
                 ->mapWithKeys(fn ($a) => [$a->id => $a->code.' — '.$a->name]),
             'databases' => DatabaseReference::query()->visibleTo($user)->orderBy('code')->get()
@@ -183,7 +185,17 @@ class RepositoryController extends Controller
             'environments' => Environment::query()->orderBy('sort_order')->get()->mapWithKeys(fn ($e) => [$e->id => $e->name.' ('.$e->code.')']),
             'canSeeSensitive' => $repository->exists
                 ? Gate::allows('viewSensitive', $repository)
-                : Gate::allows('repositories.view_sensitive'),
+                : Gate::allows('repositories.view_sensitive', $this->creationScope($repository->product_id, $repository->application_id)),
         ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function formProducts(Repository $repository): array
+    {
+        $current = $repository->exists ? [$repository->product_id => $repository->product->code.' — '.$repository->product->name] : [];
+
+        return $current + $this->productChoicesFor('repositories.create', viaApplications: true);
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AccessRuleController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DocumentTemplateController;
 use App\Http\Controllers\Admin\OptionController;
+use App\Http\Controllers\Admin\RoleAssignmentController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
@@ -53,19 +54,19 @@ Route::middleware('auth')->group(function () {
         'modules' => ModuleController::class,
     ] as $name => $controller) {
         $parameter = Str::singular($name);
-        Route::resource($name, $controller)->except('destroy');
+        Route::resource($name, $controller)->except('destroy')->middlewareFor('index', "can:{$name}.view");
         Route::post("{$name}/{{$parameter}}/archive", [$controller, 'archive'])->name("{$name}.archive");
         Route::post("{$name}/{{$parameter}}/restore", [$controller, 'restore'])->name("{$name}.restore");
     }
 
-    Route::resource('dependencies', DependencyController::class)->except('show');
+    Route::resource('dependencies', DependencyController::class)->except('show')->middlewareFor('index', 'can:dependencies.view');
 
-    Route::get('clarifications', [ClarificationController::class, 'index'])->name('clarifications.index');
+    Route::get('clarifications', [ClarificationController::class, 'index'])->middleware('can:clarifications.view')->name('clarifications.index');
     Route::post('clarifications/{clarification}/resolve', [ClarificationController::class, 'resolve'])->name('clarifications.resolve');
     Route::post('clarifications/{clarification}/reopen', [ClarificationController::class, 'reopen'])->name('clarifications.reopen');
 
     // Documentation
-    Route::get('docs', [DocumentController::class, 'index'])->name('docs.index');
+    Route::get('docs', [DocumentController::class, 'index'])->middleware('can:docs.view')->name('docs.index');
     Route::get('docs/create', [DocumentController::class, 'create'])->name('docs.create');
     Route::post('docs', [DocumentController::class, 'store'])->name('docs.store');
     Route::get('docs/resolve', [DocumentController::class, 'resolve'])->name('docs.resolve');
@@ -78,19 +79,21 @@ Route::middleware('auth')->group(function () {
     Route::post('docs/{document}/restore', [DocumentController::class, 'restore'])->name('docs.restore');
 
     // Tasks
-    Route::resource('tasks', TaskController::class)->except('destroy');
+    Route::resource('tasks', TaskController::class)->except('destroy')->middlewareFor('index', 'can:tasks.view');
     Route::patch('tasks/{task}/progress', [TaskController::class, 'progress'])->name('tasks.progress');
     Route::post('tasks/{task}/comments', [TaskCommentController::class, 'store'])->middleware('throttle:sensitive')->name('tasks.comments.store');
 
     // Reports (read-only, limited to the user's access)
-    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('reports/modules', [ReportController::class, 'modules'])->name('reports.modules');
-    Route::get('reports/workload', [ReportController::class, 'workload'])->name('reports.workload');
-    Route::get('reports/products/{product}', [ReportController::class, 'product'])->name('reports.product');
+    Route::middleware('can:reports.view')->group(function () {
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('reports/modules', [ReportController::class, 'modules'])->name('reports.modules');
+        Route::get('reports/workload', [ReportController::class, 'workload'])->name('reports.workload');
+        Route::get('reports/products/{product}', [ReportController::class, 'product'])->name('reports.product');
+    });
 
     // Reference registries (APIs, integrations, databases, Figma, environments, deployments, releases)
     Route::prefix('registry/{type}')->whereIn('type', Registries::types())->name('registries.')->group(function () {
-        Route::get('/', [RegistryController::class, 'index'])->name('index');
+        Route::get('/', [RegistryController::class, 'index'])->middleware('can:registries.view')->name('index');
         Route::get('create', [RegistryController::class, 'create'])->name('create');
         Route::post('/', [RegistryController::class, 'store'])->name('store');
         Route::get('{id}', [RegistryController::class, 'show'])->whereNumber('id')->name('show');
@@ -113,6 +116,8 @@ Route::middleware('auth')->group(function () {
         Route::get('users/{user}/access', [AccessRuleController::class, 'index'])->name('users.access');
         Route::post('users/{user}/access', [AccessRuleController::class, 'store'])->name('users.access.store');
         Route::post('access-rules/{rule}/revoke', [AccessRuleController::class, 'revoke'])->name('access-rules.revoke');
+        Route::post('users/{user}/roles', [RoleAssignmentController::class, 'store'])->name('users.roles.store');
+        Route::post('role-assignments/{assignment}/revoke', [RoleAssignmentController::class, 'revoke'])->name('role-assignments.revoke');
 
         Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
         Route::put('roles', [RoleController::class, 'update'])->name('roles.update');

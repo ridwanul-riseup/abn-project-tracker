@@ -20,6 +20,7 @@ use App\Models\Product;
 use App\Models\Release;
 use App\Models\Repository;
 use App\Models\Role;
+use App\Models\RoleAssignment;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\User;
@@ -112,6 +113,7 @@ class AppServiceProvider extends ServiceProvider
             'option' => Option::class,
             'document_template' => DocumentTemplate::class,
             'access_rule' => AccessRule::class,
+            'role_assignment' => RoleAssignment::class,
         ]);
     }
 
@@ -128,28 +130,28 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Document::class, DocumentPolicy::class);
         Gate::policy(Task::class, TaskPolicy::class);
 
+        // With a scope: permission on that record (or an ancestor). Without: held anywhere (menus, buttons).
         foreach (array_keys(Capabilities::all()) as $capability) {
-            Gate::define($capability, fn (User $user) => app(AccessService::class)->hasCapability($user, $capability));
+            Gate::define($capability, function (User $user, ?Model $scope = null) use ($capability) {
+                $access = app(AccessService::class);
+
+                return $scope !== null
+                    ? $access->can($user, $capability, $scope)
+                    : $access->hasCapabilityAnywhere($user, $capability);
+            });
         }
 
-        Gate::define('inventory.create-in', function (User $user, ?Model $scope = null) {
+        // Creating something inside a scope: the permission there plus read/write access to it.
+        // Without a scope (records that have no parent) it needs the permission and application-wide write.
+        Gate::define('create-in', function (User $user, string $permission, ?Model $scope = null) {
             $access = app(AccessService::class);
 
-            return $access->hasCapability($user, 'inventory.write')
-                && ($scope !== null ? $access->canWrite($user, $scope) : $access->hasGlobalWrite($user));
-        });
+            if ($scope === null) {
+                return $access->hasCapability($user, $permission) && $access->hasGlobalWrite($user);
+            }
 
-        Gate::define('docs.create-in', function (User $user, ?Model $scope = null) {
-            $access = app(AccessService::class);
-
-            return $access->hasCapability($user, 'docs.write')
-                && ($scope !== null ? $access->canWrite($user, $scope) : $access->hasGlobalWrite($user));
-        });
-
-        Gate::define('tasks.create-in', function (User $user, Model $scope) {
-            $access = app(AccessService::class);
-
-            return $access->hasCapability($user, 'tasks.create') && $access->canRead($user, $scope);
+            return $access->can($user, $permission, $scope)
+                && (Capabilities::grantsWrite([$permission]) ? $access->canWrite($user, $scope) : $access->canRead($user, $scope));
         });
     }
 

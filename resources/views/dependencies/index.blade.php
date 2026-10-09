@@ -5,7 +5,7 @@
 <x-layouts.app title="Dependencies" :breadcrumbs="['Dependencies' => null]">
     <x-page-header title="Dependencies" subtitle="“Source depends on target.” Only dependencies where you can see both ends are listed.">
         <x-slot:actions>
-            @can('inventory.write')
+            @can('dependencies.create')
                 <a href="{{ route('dependencies.create') }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New dependency</a>
             @endcan
         </x-slot:actions>

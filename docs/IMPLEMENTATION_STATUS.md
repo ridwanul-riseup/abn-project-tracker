@@ -18,12 +18,13 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | F | Markdown documentation (real `.md` files, templates, preview, revisions, conflict detection, link rewriting, Git links) | Done | `DocumentController`, `app/Support/Docs/*`, `resources/views/docs/*`, `Admin/DocumentTemplateController` (templates in DB; `resources/doc-templates/*` are seed only) | Path fixed after creation; metadata-only revisions; no Git operations; no UI to register files added via Git | Add "scan and register" admin screen |
 | G | Tasks (keys, filters, assignment, progress, comments, document links, blockers) | Done | `TaskController`, `TaskCommentController`, `TaskPolicy`, `resources/views/tasks/*` | No notifications, sub-tasks or issue-tracker sync | Decide whether email notifications are wanted |
 | H | Users and scoped access (read/write/deny, deny overrides, lock-out prevention, history, backend enforcement, no IDOR) | Done | `Admin/UserController`, `Admin/AccessRuleController`, `Admin/RoleController`, `AccessService`, policies, `EnsureUserIsActive` | No teams/groups; access managers see all resource names; visibility computed in PHP | Team-based rules if the user count grows |
+| H2 | Role-based access control: per-feature-module permissions (view/create/update/archive or delete, plus assign, resolve, sensitive notes, reports) and scoped role assignments (application-wide, product, application, repository, module); default permissions for Project Manager, Developer, QA Engineer and Viewer; conversion of the old coarse permissions | Done | `Capabilities`, `AccessService`, `RoleAssignment`, `Admin/RoleAssignmentController`, policies, `create-in` gate, `RolesAndPermissionsSeeder`, `resources/views/admin/users/access.blade.php` | Access does not flow upwards (a module-scoped user does not see the product page); assignments are per user, not per team | — |
 | I | Global options settings (add, rename, reorder, deactivate, delete unused, per-group default; document templates; custom roles) | Done | `Admin/OptionController`, `Admin/DocumentTemplateController`, `Admin/RoleController`, `OptionCatalog`, `Options`, `resources/views/admin/*` | New option *groups* require code (`OptionCatalog`); see `CONFIGURATION_AUDIT.md` for static items | — |
 | J | Dependencies (repository/module/API/database/integration, criticality, failure impact) | Done | `DependencyController`, `ComponentDependency`, `resources/views/dependencies/*` | No graph visualisation | Optional dependency graph view |
 | K | API / database / Figma / environment / deployment / release / integration references (no secrets) | Done | `RegistryController`, `app/Support/Registries.php`, `resources/views/registries/*` | Deployment records are manual; no CI/CD integration | — |
 | L | Audit log | Done | `Audit`, `Auditable`, `ActivityFeed`, `Admin/ActivityLogController` | Logins not audited; no retention policy | Define retention period |
 | — | Progress reports: portfolio (per product), product (per module, type, priority; overdue / due-soon / blocked lists), modules across products, workload per assignee. Columns follow the configured task statuses; every number links to the matching filtered task list | Done | `ReportController`, `app/Support/Reports/*`, `resources/views/reports/*` | Counts only; no charts, burndown, history or export. "Progress" counts closed tasks (done and cancelled alike) | Add CSV export / trend history if needed |
-| — | Pagination on every list (index pages, admin lists, related lists on detail pages with independent page parameters) | Done | `Controller::paginateList`, `components/list-pager.blade.php` | Roles capability matrix is one form and stays on one page; search shows the top results per type | — |
+| — | Pagination on every list (index pages, admin lists, related lists on detail pages with independent page parameters) | Done | `Controller::paginateList`, `components/list-pager.blade.php` | Roles permission matrix is one form and stays on one page; search shows the top results per type | — |
 | — | Global search (permission-aware, includes document content) | Done | `SearchController`, `resources/views/search.blade.php` | Document content search scans files | FULLTEXT index if docs grow |
 | — | Needs Clarification tracking (workbook gaps, resolve/reopen) | Done | `ClarificationController`, `Clarification`, `WorkbookSeeder` | Clarifications are created by the seeder; no "new clarification" form | Add a create form if the team wants it |
 | — | Profile (name, password change with current password) | Done | `ProfileController`, `resources/views/profile/edit.blade.php` | Users cannot change their own email (administrators can) | — |
@@ -48,7 +49,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | # | Workflow | Status | Tests |
 | --- | --- | --- | --- |
 | 1 | Administration | Done | `tests/Feature/AdministrationTest.php` |
-| 2 | Access control | Done | `tests/Feature/AccessControlTest.php` |
+| 2 | Access control | Done | `tests/Feature/AccessControlTest.php`, `tests/Feature/RoleBasedAccessTest.php` |
 | 3 | Documentation | Done | `tests/Feature/DocumentationTest.php` |
 | 4 | Development tracking | Done | `tests/Feature/TaskTrackingTest.php`, `tests/Feature/ReportsTest.php` |
 | 5 | Global settings | Done | `tests/Feature/GlobalSettingsTest.php`, `tests/Feature/DynamicConfigurationTest.php` |
@@ -79,7 +80,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 Most recent run, executed on 2026-10-09 with `php artisan test`, `vendor/bin/phpstan analyse`
 and `vendor/bin/pint --test` against MySQL 8.4 (`ab_project_hub_test`):
 
-- Pest: **103 passed, 0 failed** (730 assertions)
+- Pest: **114 passed, 0 failed** (808 assertions)
 - PHPStan (level 7): **0 errors**
 - Pint: **passed**
 - `npm run build`: succeeded

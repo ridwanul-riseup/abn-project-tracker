@@ -2,15 +2,17 @@
 <x-layouts.app :title="$repository->code" :breadcrumbs="['Repositories' => route('repositories.index'), $repository->code => null]">
     <x-page-header :title="$repository->code" :subtitle="$repository->name">
         <x-slot:actions>
-            @can('docs.create-in', $repository)
+            @can('create-in', ['docs.create', $repository])
                 <a href="{{ route('docs.create', ['product_id' => $repository->product_id, 'repository_id' => $repository->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-journal-plus"></i> New document</a>
             @endcan
-            @can('tasks.create-in', $repository)
+            @can('create-in', ['tasks.create', $repository])
                 <a href="{{ route('tasks.create', ['product_id' => $repository->product_id, 'repository_id' => $repository->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus-square"></i> New task</a>
             @endcan
             @can('update', $repository)
                 <a href="{{ route('dependencies.create', ['source' => 'repository:'.$repository->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-diagram-3"></i> Add dependency</a>
                 <a href="{{ route('repositories.edit', $repository) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            @endcan
+            @can('delete', $repository)
                 @if ($repository->isArchived())
                     <form method="POST" action="{{ route('repositories.restore', $repository) }}">@csrf<button class="btn btn-outline-success btn-sm">Restore</button></form>
                 @else

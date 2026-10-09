@@ -22,6 +22,7 @@ class ActivityFeed
     private const ADMIN_CAPABILITY = [
         'user' => 'users.manage',
         'access_rule' => 'access.manage',
+        'role_assignment' => 'access.manage',
         'role' => 'roles.manage',
         'option' => 'settings.manage',
         'document_template' => 'settings.manage',

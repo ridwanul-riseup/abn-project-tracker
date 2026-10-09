@@ -2,7 +2,7 @@
 <x-layouts.app title="Applications" :breadcrumbs="['Applications' => null]">
     <x-page-header title="Applications" subtitle="Applications belong to a product and group its repositories.">
         <x-slot:actions>
-            @can('inventory.write')
+            @can('applications.create')
                 <a href="{{ route('applications.create', ['product_id' => request('product')]) }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New application</a>
             @endcan
         </x-slot:actions>

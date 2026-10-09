@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\Access\AccessService;
+use App\Support\Access\DescribesScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,8 @@ use Illuminate\Support\Carbon;
  */
 class AccessRule extends Model
 {
+    use DescribesScope;
+
     protected $guarded = ['id'];
 
     protected function casts(): array
@@ -71,38 +74,6 @@ class AccessRule extends Model
     public function revoker(): BelongsTo
     {
         return $this->belongsTo(User::class, 'revoked_by');
-    }
-
-    /**
-     * The scoped record, or null for application-wide rules.
-     */
-    public function scopeModel(): ?Model
-    {
-        if ($this->scope_type === 'global' || $this->scope_id === null) {
-            return null;
-        }
-
-        $class = Model::getActualClassNameForMorph($this->scope_type);
-
-        /** @var class-string<Model> $class */
-        return $class::query()->find($this->scope_id);
-    }
-
-    public function scopeLabel(): string
-    {
-        if ($this->scope_type === 'global') {
-            return 'Application-wide';
-        }
-
-        $model = $this->scopeModel();
-        if ($model === null) {
-            return ucfirst($this->scope_type).' #'.$this->scope_id.' (deleted)';
-        }
-
-        $label = $model->getAttribute('code') ?? $model->getAttribute('path');
-        $name = $model->getAttribute('name') ?? $model->getAttribute('title');
-
-        return ucfirst($this->scope_type).': '.trim($label.' — '.$name, ' —');
     }
 
     public function auditLabel(): string

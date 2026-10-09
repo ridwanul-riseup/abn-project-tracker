@@ -2,14 +2,16 @@
     <x-page-header :title="$product->code.' — '.$product->name" :subtitle="$product->description">
         <x-slot:actions>
             <a href="{{ route('reports.product', $product) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-bar-chart-line"></i> Progress report</a>
-            @can('docs.create-in', $product)
+            @can('create-in', ['docs.create', $product])
                 <a href="{{ route('docs.create', ['product_id' => $product->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-journal-plus"></i> New document</a>
             @endcan
-            @can('tasks.create-in', $product)
+            @can('create-in', ['tasks.create', $product])
                 <a href="{{ route('tasks.create', ['product_id' => $product->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus-square"></i> New task</a>
             @endcan
             @can('update', $product)
                 <a href="{{ route('products.edit', $product) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            @endcan
+            @can('delete', $product)
                 @if ($product->isArchived())
                     <form method="POST" action="{{ route('products.restore', $product) }}">@csrf<button class="btn btn-outline-success btn-sm">Restore</button></form>
                 @else

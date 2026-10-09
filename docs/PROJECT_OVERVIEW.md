@@ -33,7 +33,7 @@ Product details come only from the workbook. Anything missing or ambiguous was i
 | Tasks | Per-product task keys (`OTT-12`), status/priority/type from settings, assignment, progress updates, comments, document links. |
 | Clarifications | Workbook gaps and other open questions; can be resolved and reopened. |
 | Search | One search box across inventory, references, tasks and document metadata/content — permission-filtered. |
-| Administration | Users, roles/capabilities, scoped access rules (read/write/deny), global dropdown settings, audit log. |
+| Administration | Users, roles with per-module permissions, scoped role assignments (application-wide, product, application, repository or module), scoped access rules (read/write/deny), global dropdown settings, audit log. |
 
 ## Who uses it
 

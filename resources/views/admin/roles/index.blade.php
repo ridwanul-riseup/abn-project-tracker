@@ -1,11 +1,11 @@
 <x-layouts.app title="Roles" :breadcrumbs="['Administration' => null, 'Roles' => null]">
-    <x-page-header title="Roles and capabilities" subtitle="Capabilities decide what a role may do. Scoped access rules still decide where. Security rules themselves (deny precedence, Super Admin protection) are not configurable." />
+    <x-page-header title="Roles and capabilities" subtitle="Permissions decide what a role may do, per feature module. A role applies application-wide as a user's global role, or only inside a product, application, repository or module when assigned there (Users &amp; Access). Scoped access rules decide where; deny precedence and Super Admin protection are not configurable." />
 
     <div class="card mb-3">
         <div class="card-header">Roles</div>
         <div class="table-responsive">
             <table class="table table-sm mb-0 align-middle">
-                <thead class="table-light"><tr><th>Name</th><th>Description</th><th>Key</th><th class="text-end">Users</th><th></th></tr></thead>
+                <thead class="table-light"><tr><th>Name</th><th>Description</th><th>Key</th><th class="text-end">Users</th><th class="text-end">Scoped</th><th></th></tr></thead>
                 <tbody>
                 @foreach ($roles as $role)
                     @php $formId = 'role-'.$role->id; @endphp
@@ -19,11 +19,12 @@
                         @endif
                         <td><code class="small">{{ $role->key }}</code> @if ($role->is_system)<span class="badge bg-light text-dark border">system</span>@endif</td>
                         <td class="text-end">{{ $role->users_count }}</td>
+                        <td class="text-end">{{ $role->assignments_count }}</td>
                         <td class="text-nowrap text-end">
                             @unless ($role->isSuperAdmin())
                                 <form id="{{ $formId }}" method="POST" action="{{ route('admin.roles.details', $role) }}" class="d-inline">@csrf @method('PUT')<button class="btn btn-sm btn-outline-primary">Save</button></form>
                             @endunless
-                            @if (! $role->is_system && $role->users_count === 0)
+                            @if (! $role->is_system && $role->users_count === 0 && $role->assignments_count === 0)
                                 <form method="POST" action="{{ route('admin.roles.destroy', $role) }}" class="d-inline" data-confirm="Delete role “{{ $role->name }}”?">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button></form>
                             @endif
                         </td>
@@ -50,7 +51,7 @@
             <table class="table table-sm mb-0 align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Capability</th>
+                        <th>Permission</th>
                         @foreach ($roles as $role)<th class="text-center small">{{ $role->name }}<div class="text-muted fw-normal">{{ $role->users_count }} users</div></th>@endforeach
                     </tr>
                 </thead>
@@ -79,6 +80,6 @@
                 </tbody>
             </table>
         </div></div>
-        <button class="btn btn-primary mt-3">Save capabilities</button>
+        <button class="btn btn-primary mt-3">Save permissions</button>
     </form>
 </x-layouts.app>

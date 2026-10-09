@@ -70,6 +70,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<RoleAssignment, $this>
+     */
+    public function roleAssignments(): HasMany
+    {
+        return $this->hasMany(RoleAssignment::class);
+    }
+
+    /**
      * @param  Builder<User>  $query
      */
     public function scopeActive(Builder $query): void

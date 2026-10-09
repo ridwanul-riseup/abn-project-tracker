@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\AccessRule;
+use App\Models\Module;
 use App\Models\Product;
+use App\Models\Repository;
 use App\Models\Role;
+use App\Models\RoleAssignment;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -54,6 +57,32 @@ class DemoUserSeeder extends Seeder
                     ['permission' => $permission, 'reason' => 'Demo seed'],
                 );
             }
+        }
+
+        // Scoped roles: the developer leads one OTT repository as Project Manager, and a
+        // contractor with only the Viewer role works as Developer on a single module.
+        $repository = $ott ? Repository::query()->where('product_id', $ott->id)->orderBy('code')->first() : null;
+        $module = $ott ? Module::query()->where('product_id', $ott->id)->orderBy('code')->first() : null;
+        $contractor = User::query()->updateOrCreate(['email' => 'module.dev@abhub.local'], [
+            'name' => 'Module Developer (demo)',
+            'password' => $password,
+            'role_id' => Role::query()->where('key', Role::VIEWER)->value('id'),
+            'is_active' => true,
+        ]);
+        foreach ([
+            ['developer@abhub.local', Role::PROJECT_MANAGER, $repository],
+            [$contractor->email, Role::DEVELOPER, $module],
+        ] as [$email, $roleKey, $scope]) {
+            if ($scope === null) {
+                continue;
+            }
+            RoleAssignment::query()->firstOrCreate([
+                'user_id' => User::query()->where('email', $email)->value('id'),
+                'role_id' => Role::query()->where('key', $roleKey)->value('id'),
+                'scope_type' => $scope->getMorphClass(),
+                'scope_id' => $scope->getKey(),
+                'revoked_at' => null,
+            ], ['reason' => 'Demo seed']);
         }
 
         $this->command->warn('Demo users created (password for all: '.$password.')');

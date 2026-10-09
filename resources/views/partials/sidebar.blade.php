@@ -1,29 +1,30 @@
 @php
+    $registries = Gate::check('registries.view');
     $nav = [
         'Overview' => [
             ['Dashboard', 'dashboard', 'bi-speedometer2', 'dashboard', true],
-            ['Reports', 'reports.index', 'bi-bar-chart-line', 'reports.*', true],
+            ['Reports', 'reports.index', 'bi-bar-chart-line', 'reports.*', Gate::check('reports.view')],
         ],
         'Inventory' => [
-            ['Products', 'products.index', 'bi-box-seam', 'products.*', true],
-            ['Applications', 'applications.index', 'bi-window-stack', 'applications.*', true],
-            ['Repositories', 'repositories.index', 'bi-git', 'repositories.*', true],
-            ['Modules', 'modules.index', 'bi-puzzle', 'modules.*', true],
-            ['Dependencies', 'dependencies.index', 'bi-diagram-3', 'dependencies.*', true],
-            ['Needs Clarification', 'clarifications.index', 'bi-question-circle', 'clarifications.*', true],
+            ['Products', 'products.index', 'bi-box-seam', 'products.*', Gate::check('products.view')],
+            ['Applications', 'applications.index', 'bi-window-stack', 'applications.*', Gate::check('applications.view')],
+            ['Repositories', 'repositories.index', 'bi-git', 'repositories.*', Gate::check('repositories.view')],
+            ['Modules', 'modules.index', 'bi-puzzle', 'modules.*', Gate::check('modules.view')],
+            ['Dependencies', 'dependencies.index', 'bi-diagram-3', 'dependencies.*', Gate::check('dependencies.view')],
+            ['Needs Clarification', 'clarifications.index', 'bi-question-circle', 'clarifications.*', Gate::check('clarifications.view')],
         ],
         'Work' => [
-            ['Documentation', 'docs.index', 'bi-journal-text', 'docs.*', true],
-            ['Tasks', 'tasks.index', 'bi-check2-square', 'tasks.*', true],
+            ['Documentation', 'docs.index', 'bi-journal-text', 'docs.*', Gate::check('docs.view')],
+            ['Tasks', 'tasks.index', 'bi-check2-square', 'tasks.*', Gate::check('tasks.view')],
         ],
         'References' => [
-            ['APIs', 'registries.index:apis', 'bi-plug', 'apis', true],
-            ['Integrations', 'registries.index:integrations', 'bi-arrow-left-right', 'integrations', true],
-            ['Databases', 'registries.index:databases', 'bi-database', 'databases', true],
-            ['Figma', 'registries.index:figma', 'bi-palette', 'figma', true],
-            ['Environments', 'registries.index:environments', 'bi-hdd-network', 'environments', true],
-            ['Deployments', 'registries.index:deployments', 'bi-cloud-upload', 'deployments', true],
-            ['Releases', 'registries.index:releases', 'bi-tag', 'releases', true],
+            ['APIs', 'registries.index:apis', 'bi-plug', 'apis', $registries],
+            ['Integrations', 'registries.index:integrations', 'bi-arrow-left-right', 'integrations', $registries],
+            ['Databases', 'registries.index:databases', 'bi-database', 'databases', $registries],
+            ['Figma', 'registries.index:figma', 'bi-palette', 'figma', $registries],
+            ['Environments', 'registries.index:environments', 'bi-hdd-network', 'environments', $registries],
+            ['Deployments', 'registries.index:deployments', 'bi-cloud-upload', 'deployments', $registries],
+            ['Releases', 'registries.index:releases', 'bi-tag', 'releases', $registries],
         ],
         'Administration' => [
             ['Users & Access', 'admin.users.index', 'bi-people', 'admin.users.*', Gate::check('users.manage') || Gate::check('access.manage')],

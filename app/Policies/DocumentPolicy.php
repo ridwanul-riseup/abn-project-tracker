@@ -17,12 +17,13 @@ class DocumentPolicy
 
     public function update(User $user, Document $document): bool
     {
-        return $this->access->hasCapability($user, 'docs.write')
+        return $this->access->can($user, 'docs.update', $document)
             && $this->access->canWrite($user, $document);
     }
 
     public function archive(User $user, Document $document): bool
     {
-        return $this->update($user, $document);
+        return $this->access->can($user, 'docs.archive', $document)
+            && $this->access->canWrite($user, $document);
     }
 }

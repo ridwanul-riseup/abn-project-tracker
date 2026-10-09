@@ -4,12 +4,10 @@ namespace App\Http\Requests;
 
 use App\Models\Application;
 use App\Models\Module;
-use App\Models\Product;
 use App\Models\Repository;
 use App\Rules\NoSecrets;
 use App\Support\Options\Options;
 use Closure;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -24,13 +22,12 @@ class ModuleRequest extends HubRequest
         }
 
         $productId = (int) $this->input('product_id');
-        if ($module && $productId === $module->product_id) {
+        $applicationId = (int) $this->input('application_id') ?: null;
+        if ($module && $productId === $module->product_id && $applicationId === $module->application_id) {
             return true;
         }
 
-        $product = Product::query()->find($productId);
-
-        return $product === null || Gate::allows('inventory.create-in', $product);
+        return $this->canCreateIn('modules.create', $productId, $applicationId);
     }
 
     protected function prepareForValidation(): void

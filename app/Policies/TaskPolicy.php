@@ -16,11 +16,20 @@ class TaskPolicy
     }
 
     /**
-     * Full edit, including assignment and scope changes.
+     * Full edit, including scope changes.
      */
     public function update(User $user, Task $task): bool
     {
-        return $this->access->hasCapability($user, 'tasks.manage')
+        return $this->access->can($user, 'tasks.update', $task)
+            && $this->access->canWrite($user, $task);
+    }
+
+    /**
+     * Choosing or changing the assignee.
+     */
+    public function assign(User $user, Task $task): bool
+    {
+        return $this->access->can($user, 'tasks.assign', $task)
             && $this->access->canWrite($user, $task);
     }
 
@@ -34,13 +43,13 @@ class TaskPolicy
         }
 
         return $task->assignee_id === $user->id
-            && $this->access->hasCapability($user, 'tasks.update_assigned')
+            && $this->access->can($user, 'tasks.update_assigned', $task)
             && $this->access->canRead($user, $task);
     }
 
     public function comment(User $user, Task $task): bool
     {
-        return ($this->access->hasCapability($user, 'tasks.comment') && $this->access->canRead($user, $task))
+        return ($this->access->can($user, 'tasks.comment', $task) && $this->access->canRead($user, $task))
             || $this->update($user, $task);
     }
 }

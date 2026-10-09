@@ -31,11 +31,12 @@ Browser ──► web middleware (session, CSRF, EnsureUserIsActive, SecurityHea
 
 | Path | Responsibility |
 | --- | --- |
-| `app/Support/Access/AccessService.php` | Single source of truth for authorization: effective level (`write`/`read`/none) per user and record, capability checks, visible-ID lists, query restriction. Request-scoped cache. |
-| `app/Support/Access/Capabilities.php` | Capability catalogue and default role → capability mapping. |
+| `app/Support/Access/AccessService.php` | Single source of truth for authorization: effective level (`write`/`read`/none) per user and record (access rules plus scoped role assignments), permission checks (`hasCapability` application-wide, `can` on a record, `hasCapabilityAnywhere`), visible-ID lists, query restriction. Request-scoped cache. |
+| `app/Support/Access/Capabilities.php` | Permission catalogue per feature module, default role → permission mapping, application-wide-only permissions, record type → feature mapping (`Capabilities::for`), legacy permission conversion map. |
+| `app/Models/RoleAssignment.php`, `Admin/RoleAssignmentController` | Scoped role assignments (a role on one product/application/repository/module, or application-wide). |
 | `app/Support/Access/HasAccessScope.php`, `ScopedByAccess.php` | Interface/trait describing a model's parent scopes (product, application, repository, module). |
 | `app/Policies/*` | `InventoryPolicy` (all inventory and registry models), `DocumentPolicy`, `TaskPolicy`. All delegate to `AccessService`. |
-| `app/Providers/AppServiceProvider.php` | Morph map, policies, capability gates, scoped gates (`inventory.create-in`, `docs.create-in`, `tasks.create-in`), rate limiters, password rules. |
+| `app/Providers/AppServiceProvider.php` | Morph map, policies, one gate per permission (optionally with a record: `@can('repositories.update', $repo)`), the `create-in` gate (`Gate::allows('create-in', ['docs.create', $scope])`), rate limiters, password rules. |
 | `app/Support/Docs/*` | Markdown storage (`LocalMarkdownStorage`), path rules (`DocumentPath`), create/update/revision logic (`DocumentService`), rendering (`MarkdownRenderer`). |
 | `app/Support/Options/*` | Global dropdown settings: catalogue of groups (`OptionCatalog`), lookups and validation rules (`Options`). |
 | `app/Support/Registries.php` + `RegistryController` | Declarative definitions for the seven reference registries; one generic CRUD controller and set of views. |
@@ -50,10 +51,12 @@ Browser ──► web middleware (session, CSRF, EnsureUserIsActive, SecurityHea
 
 Two independent checks must both pass:
 
-1. **Capability** (role-based): e.g. `docs.write`, `tasks.manage`.
-2. **Scope** (per-user access rules): effective `read`/`write` on the record, resolved through its
-   ancestors (document → module/repository → application → product → global). An explicit
-   deny anywhere in the chain wins.
+1. **Permission** (role-based, per feature module): e.g. `docs.update`, `tasks.assign`. It comes
+   from the user's global role, an application-wide role assignment, or a role assigned on the
+   record or one of its ancestors.
+2. **Scope** (access rules and role assignments): effective `read`/`write` on the record, resolved
+   through its ancestors (document → module/repository → application → product → global). An
+   explicit deny anywhere in the chain wins. Reading also needs the feature's `view` permission.
 
 Unreadable records return **404**, not 403, so their existence is not revealed. Details:
 [ACCESS_CONTROL.md](ACCESS_CONTROL.md).

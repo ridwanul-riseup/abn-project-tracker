@@ -42,11 +42,12 @@ class ApplicationController extends Controller
     public function create(Request $request): View
     {
         $product = Product::query()->find($request->integer('product_id'));
-        Gate::authorize('inventory.create-in', $product ?? $this->firstWritableProduct());
+        $products = $this->productChoicesFor('applications.create');
+        abort_if($products === [] || ($product !== null && ! isset($products[$product->id])), 403);
 
         return view('applications.form', [
             'application' => new Application(['product_id' => $product?->id]),
-            'products' => $this->productChoices(writableOnly: true),
+            'products' => $products,
         ]);
     }
 
@@ -77,7 +78,8 @@ class ApplicationController extends Controller
 
         return view('applications.form', [
             'application' => $application,
-            'products' => $this->productChoices(writableOnly: true),
+            'products' => [$application->product_id => $application->product->code.' — '.$application->product->name]
+                + $this->productChoicesFor('applications.create'),
         ]);
     }
 

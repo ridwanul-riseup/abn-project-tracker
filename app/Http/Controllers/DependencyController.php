@@ -47,7 +47,7 @@ class DependencyController extends Controller
 
     public function create(Request $request): View
     {
-        Gate::authorize('inventory.write');
+        Gate::authorize('dependencies.create');
 
         return view('dependencies.form', [
             'dependency' => new ComponentDependency,
@@ -58,7 +58,7 @@ class DependencyController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        Gate::authorize('inventory.write');
+        Gate::authorize('dependencies.create');
         $data = $this->validated($request);
         $data['code'] = $this->nextCode();
         $dependency = ComponentDependency::query()->create($data);
@@ -118,8 +118,8 @@ class DependencyController extends Controller
         $source = $this->resolveComponent($request->string('source')->toString(), 'source');
         $target = $this->resolveComponent($request->string('target')->toString(), 'target');
 
-        // Write access is required on the source; the target only has to be readable.
-        if (! Gate::allows('update', $source)) {
+        // The dependency permission and write access are required on the source; the target only has to be readable.
+        if (! Gate::allows('create-in', [$dependency ? 'dependencies.update' : 'dependencies.create', $source])) {
             throw ValidationException::withMessages(['source' => 'You need write access to the source component.']);
         }
 

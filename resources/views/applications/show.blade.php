@@ -4,6 +4,8 @@
             @can('update', $application)
                 <a href="{{ route('repositories.create', ['product_id' => $application->product_id, 'application_id' => $application->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus-lg"></i> Add repository</a>
                 <a href="{{ route('applications.edit', $application) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            @endcan
+            @can('delete', $application)
                 @if ($application->isArchived())
                     <form method="POST" action="{{ route('applications.restore', $application) }}">@csrf<button class="btn btn-outline-success btn-sm">Restore</button></form>
                 @else

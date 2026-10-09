@@ -1,14 +1,16 @@
 <x-layouts.app :title="$module->code" :breadcrumbs="['Modules' => route('modules.index'), $module->code => null]">
     <x-page-header :title="$module->code.' — '.$module->name" :subtitle="$module->description">
         <x-slot:actions>
-            @can('docs.create-in', $module)
+            @can('create-in', ['docs.create', $module])
                 <a href="{{ route('docs.create', ['product_id' => $module->product_id, 'module_id' => $module->id, 'template' => 'module']) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-journal-plus"></i> New document</a>
             @endcan
-            @can('tasks.create-in', $module)
+            @can('create-in', ['tasks.create', $module])
                 <a href="{{ route('tasks.create', ['product_id' => $module->product_id, 'module_id' => $module->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus-square"></i> New task</a>
             @endcan
             @can('update', $module)
                 <a href="{{ route('modules.edit', $module) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            @endcan
+            @can('delete', $module)
                 @if ($module->isArchived())
                     <form method="POST" action="{{ route('modules.restore', $module) }}">@csrf<button class="btn btn-outline-success btn-sm">Restore</button></form>
                 @else

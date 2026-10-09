@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Application;
 use App\Models\Clarification;
 use App\Models\Product;
 use App\Models\User;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 
 abstract class Controller
 {
@@ -56,25 +58,54 @@ abstract class Controller
      *
      * @return array<int, string>
      */
-    protected function productChoices(bool $writableOnly = false): array
+    protected function productChoices(): array
     {
         return Product::query()
             ->visibleTo($this->user())
             ->notArchived()
             ->orderBy('code')
             ->get()
-            ->filter(fn ($p) => ! $writableOnly || $this->access()->canWrite($this->user(), $p))
             ->mapWithKeys(fn (Product $p) => [$p->id => $p->code.' — '.$p->name])
             ->all();
     }
 
     /**
-     * Used to decide whether "create" screens are reachable when no product is preselected.
+     * Products in which the user may create records with the given permission, either on the
+     * product itself or (for records that can sit under an application) inside one of its applications.
+     *
+     * @return array<int, string>
      */
-    protected function firstWritableProduct(): ?Product
+    protected function productChoicesFor(string $permission, bool $viaApplications = false): array
     {
-        return Product::query()->visibleTo($this->user())->notArchived()->get()
-            ->first(fn ($p) => $this->access()->canWrite($this->user(), $p));
+        $user = $this->user();
+        $allowed = Product::query()->visibleTo($user)->notArchived()->get()
+            ->filter(fn (Product $p) => Gate::allows('create-in', [$permission, $p]))
+            ->pluck('id')->all();
+
+        if ($viaApplications) {
+            $allowed = [...$allowed, ...Application::query()->visibleTo($user)->notArchived()->get()
+                ->filter(fn (Application $a) => Gate::allows('create-in', [$permission, $a]))
+                ->pluck('product_id')->all()];
+        }
+
+        return Product::query()->whereIn('id', array_unique($allowed))->notArchived()->orderBy('code')->get()
+            ->mapWithKeys(fn (Product $p) => [$p->id => $p->code.' — '.$p->name])
+            ->all();
+    }
+
+    /**
+     * The scope a new product-level record (repository, module) is created in: its application, if any, else its product.
+     */
+    protected function creationScope(?int $productId, ?int $applicationId): ?Model
+    {
+        if ($applicationId) {
+            $application = Application::query()->find($applicationId);
+            if ($application !== null && $application->product_id === $productId) {
+                return $application;
+            }
+        }
+
+        return $productId ? Product::query()->find($productId) : null;
     }
 
     /**

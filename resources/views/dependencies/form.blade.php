@@ -8,7 +8,7 @@
                :breadcrumbs="['Dependencies' => route('dependencies.index'), ($editing ? $dependency->code : 'New') => null]">
     <x-page-header :title="$editing ? 'Dependency '.$dependency->code : 'New dependency'" subtitle="Source depends on target." >
         <x-slot:actions>
-            @if ($editing && ! $readOnly)
+            @if ($editing && Gate::allows('delete', $dependency))
                 <form method="POST" action="{{ route('dependencies.destroy', $dependency) }}" data-confirm="Delete dependency {{ $dependency->code }}?">
                     @csrf @method('DELETE')
                     <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>

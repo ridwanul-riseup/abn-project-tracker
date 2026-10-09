@@ -2,7 +2,7 @@
 <x-layouts.app title="Modules" :breadcrumbs="['Modules' => null]">
     <x-page-header title="Module & feature registry" subtitle="Functional modules of each product, their repositories and references.">
         <x-slot:actions>
-            @can('inventory.write')
+            @can('modules.create')
                 <a href="{{ route('modules.create', ['product_id' => request('product')]) }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> New module</a>
             @endcan
         </x-slot:actions>

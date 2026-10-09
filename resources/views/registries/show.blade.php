@@ -3,6 +3,8 @@
         <x-slot:actions>
             @can('update', $record)
                 <a href="{{ route('registries.edit', [$type, $record->id]) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            @endcan
+            @can('delete', $record)
                 <form method="POST" action="{{ route('registries.destroy', [$type, $record->id]) }}" data-confirm="Delete {{ $record->code }}? Records still referenced elsewhere cannot be deleted.">
                     @csrf @method('DELETE')
                     <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>

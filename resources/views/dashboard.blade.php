@@ -1,19 +1,22 @@
 <x-layouts.app title="Dashboard">
     <x-page-header title="Dashboard" subtitle="AB Digital Ecosystem — products, repositories, documentation and development tasks you have access to.">
         <x-slot:actions>
-            <a href="{{ route('reports.index') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-bar-chart-line"></i> Progress reports</a>
+            @can('reports.view')
+                <a href="{{ route('reports.index') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-bar-chart-line"></i> Progress reports</a>
+            @endcan
         </x-slot:actions>
     </x-page-header>
 
     <div class="row g-3 mb-3">
         @foreach ([
-            ['Repositories', $counts['repositories'], 'bi-git', route('repositories.index')],
-            ['Modules', $counts['modules'], 'bi-puzzle', route('modules.index')],
-            ['Documents', $counts['documents'], 'bi-journal-text', route('docs.index')],
-            ['Open tasks', $counts['open_tasks'], 'bi-check2-square', route('tasks.index')],
-            ['Blocked tasks', $counts['blocked_tasks'], 'bi-slash-circle', route('tasks.index', ['state' => 'blocked'])],
-            ['Needs clarification', $counts['clarifications'], 'bi-question-circle', route('clarifications.index')],
-        ] as [$label, $value, $icon, $url])
+            ['Repositories', $counts['repositories'], 'bi-git', 'repositories.view', route('repositories.index')],
+            ['Modules', $counts['modules'], 'bi-puzzle', 'modules.view', route('modules.index')],
+            ['Documents', $counts['documents'], 'bi-journal-text', 'docs.view', route('docs.index')],
+            ['Open tasks', $counts['open_tasks'], 'bi-check2-square', 'tasks.view', route('tasks.index')],
+            ['Blocked tasks', $counts['blocked_tasks'], 'bi-slash-circle', 'tasks.view', route('tasks.index', ['state' => 'blocked'])],
+            ['Needs clarification', $counts['clarifications'], 'bi-question-circle', 'clarifications.view', route('clarifications.index')],
+        ] as [$label, $value, $icon, $permission, $url])
+            @continue(Gate::denies($permission))
             <div class="col-6 col-md-4 col-xl-2">
                 <a href="{{ $url }}" class="card text-decoration-none h-100"><div class="card-body py-3">
                     <div class="small text-muted"><i class="bi {{ $icon }}"></i> {{ $label }}</div>
@@ -26,7 +29,7 @@
     <div class="row g-3">
         <div class="col-xl-8">
             <div class="card mb-3">
-                <div class="card-header d-flex justify-content-between"><span>Products</span><a href="{{ route('products.index') }}" class="small">All products</a></div>
+                <div class="card-header d-flex justify-content-between"><span>Products</span>@can('products.view')<a href="{{ route('products.index') }}" class="small">All products</a>@endcan</div>
                 <div class="table-responsive">
                     <table class="table table-sm mb-0 align-middle">
                         <thead class="table-light"><tr><th>Code</th><th>Product</th><th>Status</th><th class="text-end">Repositories</th><th class="text-end">Modules</th></tr></thead>
@@ -36,8 +39,8 @@
                                 <td><a class="fw-semibold" href="{{ route('products.show', $product) }}">{{ $product->code }}</a></td>
                                 <td>{{ $product->name }}</td>
                                 <td><x-option-badge :option="$product->status" /></td>
-                                <td class="text-end"><a href="{{ route('repositories.index', ['product_id' => $product->id]) }}">{{ $repoCounts[$product->id] ?? 0 }}</a></td>
-                                <td class="text-end"><a href="{{ route('modules.index', ['product_id' => $product->id]) }}">{{ $moduleCounts[$product->id] ?? 0 }}</a></td>
+                                <td class="text-end">@can('repositories.view')<a href="{{ route('repositories.index', ['product_id' => $product->id]) }}">{{ $repoCounts[$product->id] ?? 0 }}</a>@else{{ $repoCounts[$product->id] ?? 0 }}@endcan</td>
+                                <td class="text-end">@can('modules.view')<a href="{{ route('modules.index', ['product_id' => $product->id]) }}">{{ $moduleCounts[$product->id] ?? 0 }}</a>@else{{ $moduleCounts[$product->id] ?? 0 }}@endcan</td>
                             </tr>
                         @empty
                             <tr><td colspan="5"><x-empty message="You do not have access to any products yet. Ask an administrator to grant access." /></td></tr>
@@ -50,7 +53,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="card h-100">
-                        <div class="card-header d-flex justify-content-between"><span>My open tasks</span><a href="{{ route('tasks.index', ['mine' => 1]) }}" class="small">All</a></div>
+                        <div class="card-header d-flex justify-content-between"><span>My open tasks</span>@can('tasks.view')<a href="{{ route('tasks.index', ['mine' => 1]) }}" class="small">All</a>@endcan</div>
                         <ul class="list-group list-group-flush small">
                             @forelse ($myTasks as $task)
                                 <li class="list-group-item d-flex justify-content-between gap-2">
@@ -83,7 +86,7 @@
 
         <div class="col-xl-4">
             <div class="card mb-3">
-                <div class="card-header d-flex justify-content-between"><span>Recently updated documents</span><a href="{{ route('docs.index') }}" class="small">All</a></div>
+                <div class="card-header d-flex justify-content-between"><span>Recently updated documents</span>@can('docs.view')<a href="{{ route('docs.index') }}" class="small">All</a>@endcan</div>
                 <ul class="list-group list-group-flush small">
                     @forelse ($recentDocuments as $doc)
                         <li class="list-group-item">

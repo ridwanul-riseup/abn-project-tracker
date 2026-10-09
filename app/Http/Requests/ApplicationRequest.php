@@ -27,7 +27,7 @@ class ApplicationRequest extends HubRequest
 
         $product = Product::query()->find($productId);
 
-        return $product === null || Gate::allows('inventory.create-in', $product);
+        return $product === null || Gate::allows('create-in', ['applications.create', $product]);
     }
 
     protected function prepareForValidation(): void

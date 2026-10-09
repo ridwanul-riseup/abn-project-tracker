@@ -68,13 +68,13 @@ class DocumentController extends Controller
         return view('docs.index', [
             'documents' => $paginator,
             'products' => $this->productChoices(),
-            'canCreate' => Gate::allows('docs.write'),
+            'canCreate' => Gate::allows('docs.create'),
         ]);
     }
 
     public function create(Request $request): View
     {
-        Gate::authorize('docs.write');
+        Gate::authorize('docs.create');
 
         $document = new Document([
             'product_id' => $request->integer('product_id') ?: null,
@@ -103,11 +103,11 @@ class DocumentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        Gate::authorize('docs.write');
+        Gate::authorize('docs.create');
 
         $data = $this->validated($request, null);
         $document = new Document($data['attributes']);
-        Gate::authorize('docs.create-in', $this->scopeFor($document));
+        Gate::authorize('create-in', ['docs.create', $this->scopeFor($document)]);
 
         $category = $this->options()->find($document->category_id);
         $base = DocumentPath::build($document->product?->slug, $category?->value, $data['attributes']['title'], $request->string('slug')->toString() ?: null);
@@ -170,7 +170,7 @@ class DocumentController extends Controller
 
         $probe = (clone $document)->fill($data['attributes']);
         if ($probe->only(['product_id', 'repository_id', 'module_id']) != $original) {
-            Gate::authorize('docs.create-in', $this->scopeFor($probe));
+            Gate::authorize('create-in', ['docs.create', $this->scopeFor($probe)]);
         }
 
         try {
@@ -217,7 +217,7 @@ class DocumentController extends Controller
 
     public function preview(Request $request): JsonResponse
     {
-        Gate::authorize('docs.write');
+        abort_unless(Gate::allows('docs.create') || Gate::allows('docs.update'), 403);
 
         $validated = $request->validate([
             'content' => ['nullable', 'string', 'max:'.config('hub.docs.max_bytes')],

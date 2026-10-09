@@ -7,16 +7,17 @@ unless stated. Foreign keys to inventory use `RESTRICT` on delete; records are *
 Polymorphic columns (`*_type`) store short aliases from the enforced morph map in
 `AppServiceProvider` (`product`, `application`, `repository`, `module`, `document`, `task`,
 `api`, `database`, `figma`, `environment`, `deployment`, `release`, `integration`,
-`dependency`, `clarification`, `user`, `role`, `option`, `access_rule`, `task_comment`).
+`dependency`, `clarification`, `user`, `role`, `option`, `access_rule`, `role_assignment`, `task_comment`).
 
-## Users, roles and capabilities
+## Users, roles and permissions
 
 | Table | Key columns | Notes |
 | --- | --- | --- |
 | `users` | `name`, `email` (unique), `password`, `role_id` → roles, `is_active`, `deactivated_at`, `last_login_at`, `remember_token` | Users are deactivated, never deleted, so history keeps its author. |
 | `roles` | `key` (unique), `name`, `description`, `is_system`, `sort_order` | Six seeded system roles. |
-| `permissions` | `key` (unique), `name`, `group`, `description` | Capabilities (see `Capabilities::all()`). |
-| `permission_role` | `role_id`, `permission_id` (PK pair) | Editable in *Administration → Roles*. |
+| `permissions` | `key` (unique), `name`, `group`, `description` | Permissions per feature module (see `Capabilities::all()`). |
+| `permission_role` | `role_id`, `permission_id` (PK pair) | Editable in *Administration → Roles & Permissions*. |
+| `role_assignments` | `user_id` → users (cascade), `role_id` → roles (restrict), `scope_type` (`global`/`product`/`application`/`repository`/`module`), `scope_id`, `reason`, `granted_by`, `revoked_at`, `revoked_by` | Scoped roles. Revoked rows are kept for history; a role used here cannot be deleted. |
 | `password_reset_tokens`, `sessions` | Laravel defaults | Sessions use the database driver by default. |
 | `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs` | Laravel defaults | |
 
@@ -99,6 +100,6 @@ products ─┬─< applications ─┬─< repositories >─┬─ module_repos
 
 documents ─< document_revisions        tasks ─< task_comments
 documents >─ document_task ─< tasks
-users ─< access_rules, activity_logs;  users >─ roles >─ permission_role ─< permissions
+users ─< access_rules, role_assignments >─ roles, activity_logs;  users >─ roles >─ permission_role ─< permissions
 options ◄── *_status_id, *_type_id, priority_id, layer_id, category_id, …
 ```

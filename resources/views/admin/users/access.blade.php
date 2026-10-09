@@ -25,7 +25,7 @@
                             <div class="row g-2">
                                 <div class="col-md-5">
                                     <label class="form-label small" for="scope_type">Scope</label>
-                                    <select id="scope_type" name="scope_type" class="form-select form-select-sm">
+                                    <select id="scope_type" name="scope_type" class="form-select form-select-sm" data-scope-target="scope_id">
                                         @foreach (\App\Support\Access\AccessService::SCOPE_TYPES as $type)
                                             <option value="{{ $type }}" @selected(old('scope_type', 'product') === $type)>{{ $type === 'global' ? 'Application-wide' : ucfirst($type) }}</option>
                                         @endforeach
@@ -82,10 +82,89 @@
                 <x-list-pager :items="$activeRules" />
             </div>
 
+            @unless ($targetIsSuperAdmin)
+                <div class="card mb-3">
+                    <div class="card-header">Assign a role on a scope</div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ route('admin.users.roles.store', $target) }}">
+                            @csrf
+                            <div class="row g-2">
+                                <div class="col-md-5">
+                                    <label class="form-label small" for="role_id">Role</label>
+                                    <select id="role_id" name="role_id" class="form-select form-select-sm @error('role_id') is-invalid @enderror">
+                                        @foreach ($assignableRoles as $id => $name)
+                                            <option value="{{ $id }}" @selected(old('role_id') == $id)>{{ $name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('role_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-7">
+                                    <label class="form-label small" for="assignment_scope_type">Scope</label>
+                                    <select id="assignment_scope_type" name="assignment_scope_type" class="form-select form-select-sm" data-scope-target="assignment_scope_id">
+                                        @foreach (\App\Models\RoleAssignment::SCOPE_TYPES as $type)
+                                            <option value="{{ $type }}" @selected(old('assignment_scope_type', 'product') === $type)>{{ $type === 'global' ? 'Application-wide (all products)' : ucfirst($type) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label small" for="assignment_scope_id">Resource</label>
+                                    <select id="assignment_scope_id" name="assignment_scope_id" class="form-select form-select-sm @error('assignment_scope_id') is-invalid @enderror">
+                                        @foreach ($scopeChoices as $type => $items)
+                                            @continue($type === 'document')
+                                            @foreach ($items as $id => $label)
+                                                <option value="{{ $id }}" data-type="{{ $type }}" @selected(old('assignment_scope_type') === $type && old('assignment_scope_id') == $id)>{{ $label }}</option>
+                                            @endforeach
+                                        @endforeach
+                                    </select>
+                                    @error('assignment_scope_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label small" for="assignment_reason">Reason (optional)</label>
+                                    <input id="assignment_reason" name="reason" class="form-control form-control-sm" maxlength="255">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm mt-3">Assign role</button>
+                            <p class="small text-muted mt-2 mb-0">The role's permissions apply inside the chosen scope and everything below it (a product includes its applications, repositories, modules, documents and tasks). The assignment also grants read access there, or write access if the role can change content. Denies still win.</p>
+                        </form>
+                    </div>
+                </div>
+            @endunless
+
+            <div class="card mb-3" id="role_assignments">
+                <div class="card-header">Scoped roles ({{ $roleAssignments->total() }})</div>
+                <ul class="list-group list-group-flush small">
+                    @forelse ($roleAssignments as $assignment)
+                        <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <span class="badge bg-primary">{{ $assignment->role->name }}</span>
+                                {{ $assignment->scopeLabel() }}
+                                <div class="text-muted">by {{ $assignment->granter?->name ?? 'system' }} · {{ $assignment->created_at?->format('Y-m-d') }}@if ($assignment->reason) · {{ $assignment->reason }}@endif</div>
+                            </div>
+                            <form method="POST" action="{{ route('admin.role-assignments.revoke', $assignment) }}" data-confirm="Revoke this role assignment?">@csrf<button class="btn btn-sm btn-outline-danger">Revoke</button></form>
+                        </li>
+                    @empty
+                        <li class="list-group-item text-muted">No scoped roles. Only the global role below applies.</li>
+                    @endforelse
+                </ul>
+                <x-list-pager :items="$roleAssignments" />
+                @if ($revokedAssignments->total() > 0)
+                    <div class="card-body border-top small" id="revoked_assignments">
+                        <div class="fw-semibold mb-1">Revoked</div>
+                        @foreach ($revokedAssignments as $assignment)
+                            <div><s>{{ $assignment->role->name }} — {{ $assignment->scopeLabel() }}</s> <span class="text-muted">revoked by {{ $assignment->revoker?->name ?? 'system' }} {{ $assignment->revoked_at?->format('Y-m-d') }}</span></div>
+                        @endforeach
+                    </div>
+                    <x-list-pager :items="$revokedAssignments" />
+                @endif
+            </div>
+
             <div class="card mb-3">
-                <div class="card-header">Role capabilities — {{ $target->role?->name ?? 'No role' }}</div>
+                <div class="card-header">Global role permissions — {{ $target->role?->name ?? 'No role' }}</div>
                 <ul class="list-group list-group-flush small">
                     @foreach ($capabilities as $key => [$group, $name])
+                        @if ($loop->first || $group !== $capabilities[array_keys($capabilities)[$loop->index - 1]][0])
+                            <li class="list-group-item py-1 bg-light fw-semibold">{{ $group }}</li>
+                        @endif
                         <li class="list-group-item py-1">@if (in_array($key, $roleCapabilities, true))<i class="bi bi-check-lg text-success"></i>@else<i class="bi bi-x text-muted"></i>@endif {{ $name }}</li>
                     @endforeach
                 </ul>

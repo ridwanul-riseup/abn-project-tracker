@@ -70,7 +70,7 @@ git pull                          # or switch the release symlink
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan migrate --force
-php artisan db:seed --class=RolesAndPermissionsSeeder --force   # new capabilities, keeps role edits
+php artisan db:seed --class=RolesAndPermissionsSeeder --force   # new permissions, keeps role edits; converts inventory.write/docs.write/tasks.manage
 php artisan db:seed --class=OptionSeeder --force                # new options, keeps label/order/default edits
 php artisan db:seed --class=DocumentTemplateSeeder --force      # only fills an empty template table
 php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache

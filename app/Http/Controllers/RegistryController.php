@@ -166,7 +166,7 @@ class RegistryController extends Controller
     }
 
     /**
-     * Creation requires inventory.write and write access to the record's scope.
+     * Creation requires registries.create and write access to the record's scope.
      *
      * @param  RegistryDefinition  $definition
      * @param  array<string, mixed>  $data
@@ -181,7 +181,7 @@ class RegistryController extends Controller
             $scopeModel = $class::query()->find($data[$scopeColumn]);
         }
 
-        Gate::authorize('inventory.create-in', $scopeModel);
+        Gate::authorize('create-in', ['registries.create', $scopeModel]);
     }
 
     /**
@@ -189,10 +189,10 @@ class RegistryController extends Controller
      */
     private function canCreateAny(array $definition): bool
     {
-        if (! Gate::allows('inventory.write')) {
+        if (! Gate::allows('registries.create')) {
             return false;
         }
-        if ($this->access()->hasGlobalWrite($this->user())) {
+        if (Gate::allows('create-in', ['registries.create', null])) {
             return true;
         }
         if ($definition['scope'] === null) {
@@ -203,7 +203,7 @@ class RegistryController extends Controller
             ? Repository::query()->visibleTo($this->user())->get()
             : Product::query()->visibleTo($this->user())->get();
 
-        return $candidates->contains(fn (Model $m) => $this->access()->canWrite($this->user(), $m));
+        return $candidates->contains(fn (Model $m) => Gate::allows('create-in', ['registries.create', $m]));
     }
 
     /**

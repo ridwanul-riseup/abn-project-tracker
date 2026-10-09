@@ -68,10 +68,12 @@ if (previewTab) {
     });
 }
 
-// Access rule form: show only resources of the selected scope type.
-const scopeType = document.getElementById('scope_type');
-const scopeId = document.getElementById('scope_id');
-if (scopeType && scopeId) {
+// Access rule / role assignment forms: show only resources of the selected scope type.
+document.querySelectorAll('select[data-scope-target]').forEach((scopeType) => {
+    const scopeId = document.getElementById(scopeType.dataset.scopeTarget);
+    if (!scopeId) {
+        return;
+    }
     const allOptions = Array.from(scopeId.querySelectorAll('option[data-type]'));
     const refresh = () => {
         const type = scopeType.value;
@@ -87,4 +89,4 @@ if (scopeType && scopeId) {
     };
     scopeType.addEventListener('change', refresh);
     refresh();
-}
+});

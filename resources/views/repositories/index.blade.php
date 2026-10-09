@@ -2,7 +2,7 @@
 <x-layouts.app title="Repositories" :breadcrumbs="['Repositories' => null]">
     <x-page-header title="Repository registry" subtitle="Repositories, their responsibilities and references. URLs are optional — some entries only have a name.">
         <x-slot:actions>
-            @can('inventory.write')
+            @can('repositories.create')
                 <a href="{{ route('repositories.create', ['product_id' => request('product')]) }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Register repository</a>
             @endcan
         </x-slot:actions>

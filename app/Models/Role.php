@@ -56,6 +56,16 @@ class Role extends Model
         return $this->hasMany(User::class);
     }
 
+    /**
+     * Scoped role assignments (active and revoked).
+     *
+     * @return HasMany<RoleAssignment, $this>
+     */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(RoleAssignment::class);
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->key === self::SUPER_ADMIN;

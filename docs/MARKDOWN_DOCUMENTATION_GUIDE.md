@@ -52,7 +52,7 @@ asks you to reload and re-apply your change.
 | *Restricted — inherits access* (default) | Users with access to the document's product/repository/module, or a document rule. |
 | *All active users* | Every active user unless explicitly denied. Only users with `access.manage` can choose this. |
 
-Editing always requires `docs.write` plus write access to the document's scope.
+Creating requires `docs.create`, editing `docs.update` and archiving `docs.archive`, each plus write access to the document's scope (the permission may come from a role assigned on that scope).
 
 ### Templates
 

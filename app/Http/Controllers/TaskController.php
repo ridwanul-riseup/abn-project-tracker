@@ -106,7 +106,7 @@ class TaskController extends Controller
 
         [$attributes, $documentIds] = $this->validated($request, null);
         $probe = new Task($attributes);
-        Gate::authorize('tasks.create-in', $this->scopeFor($probe));
+        Gate::authorize('create-in', ['tasks.create', $this->scopeFor($probe)]);
         $this->checkAssignee($probe);
 
         $task = DB::transaction(function () use ($attributes, $documentIds) {
@@ -159,8 +159,7 @@ class TaskController extends Controller
 
         $scopeKeys = ['application_id', 'repository_id', 'module_id'];
         if ($probe->only($scopeKeys) != $task->only($scopeKeys)) {
-            $scope = $this->scopeFor($probe);
-            abort_unless($this->access()->canWrite($this->user(), $scope), 403);
+            abort_unless(Gate::allows('create-in', ['tasks.update', $this->scopeFor($probe)]), 403);
         }
         $this->checkAssignee($probe);
 
@@ -228,7 +227,7 @@ class TaskController extends Controller
         ];
         // The product determines the task key; it is fixed after creation.
         if ($task === null) {
-            $rules['product_id'] = ['required', 'integer', $readable(Product::class)];
+            $rules['product_id'] = ['required', 'integer', 'exists:products,id'];
         }
 
         $validated = $request->validate($rules);
@@ -239,6 +238,11 @@ class TaskController extends Controller
             if (! empty($validated[$key]) && (int) $class::query()->whereKey($validated[$key])->value('product_id') !== $productId) {
                 throw ValidationException::withMessages([$key => 'The selected record belongs to a different product.']);
             }
+        }
+        // Users whose access is limited to an application, repository or module place tasks there.
+        $placedInReadableScope = ! empty($validated['application_id']) || ! empty($validated['repository_id']) || ! empty($validated['module_id']);
+        if ($task === null && ! $placedInReadableScope && ! $this->access()->canRead($user, Product::query()->find($productId))) {
+            throw ValidationException::withMessages(['product_id' => 'The selected product id is invalid.']);
         }
 
         $attributes = [];
@@ -256,8 +260,9 @@ class TaskController extends Controller
             unset($attributes['status_id']);
         }
 
-        // Only task managers may assign; others keep the current assignee.
-        if (! Gate::allows('tasks.manage')) {
+        // Only users allowed to assign in the task's scope may change the assignee; others keep the current one.
+        $probe = $task !== null ? (clone $task)->fill($attributes) : new Task($attributes);
+        if (! Gate::allows('assign', $probe)) {
             $attributes['assignee_id'] = $task?->assignee_id;
         }
 
@@ -324,15 +329,35 @@ class TaskController extends Controller
 
         return [
             'task' => $task,
-            'products' => $task->exists ? [] : $this->productChoices(),
+            'products' => $task->exists ? [] : $this->taskProductChoices(),
             'applications' => Application::query()->visibleTo($user)->orderBy('code')->get()->mapWithKeys($label),
             'repositories' => Repository::query()->visibleTo($user)->orderBy('code')->get()->mapWithKeys($label),
             'modules' => Module::query()->visibleTo($user)->orderBy('code')->get()->mapWithKeys($label),
             'documents' => Document::query()->visibleTo($user)->notArchived()->orderBy('title')->get()->mapWithKeys(fn ($d) => [$d->id => $d->title]),
             'selectedDocuments' => $task->exists ? $task->documents()->pluck('documents.id') : collect(),
             'assignees' => $this->assigneeChoices(),
-            'canAssign' => Gate::allows('tasks.manage'),
+            'canAssign' => $task->exists ? Gate::allows('assign', $task) : Gate::allows('tasks.assign'),
         ];
+    }
+
+    /**
+     * Readable products plus the products of readable applications, repositories and modules,
+     * so users with a narrower scope can still choose where their task belongs.
+     *
+     * @return array<int, string>
+     */
+    private function taskProductChoices(): array
+    {
+        $user = $this->user();
+        $parentIds = [
+            ...Application::query()->visibleTo($user)->pluck('product_id')->all(),
+            ...Repository::query()->visibleTo($user)->pluck('product_id')->all(),
+            ...Module::query()->visibleTo($user)->pluck('product_id')->all(),
+        ];
+
+        return $this->productChoices() + Product::query()->whereIn('id', $parentIds)->notArchived()->orderBy('code')->get()
+            ->mapWithKeys(fn (Product $p) => [$p->id => $p->code.' — '.$p->name])
+            ->all();
     }
 
     /**

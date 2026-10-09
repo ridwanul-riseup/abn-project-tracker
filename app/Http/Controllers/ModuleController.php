@@ -8,7 +8,6 @@ use App\Models\ComponentDependency;
 use App\Models\DatabaseReference;
 use App\Models\Document;
 use App\Models\Module;
-use App\Models\Product;
 use App\Models\Repository;
 use App\Models\Task;
 use App\Support\Audit;
@@ -46,10 +45,16 @@ class ModuleController extends Controller
 
     public function create(Request $request): View
     {
-        $product = Product::query()->find($request->integer('product_id'));
-        Gate::authorize('inventory.create-in', $product ?? $this->firstWritableProduct());
+        $module = new Module([
+            'product_id' => $request->integer('product_id') ?: null,
+            'application_id' => $request->integer('application_id') ?: null,
+        ]);
+        $scope = $this->creationScope($module->product_id, $module->application_id);
+        abort_unless($scope !== null
+            ? Gate::allows('create-in', ['modules.create', $scope])
+            : $this->productChoicesFor('modules.create', viaApplications: true) !== [], 403);
 
-        return view('modules.form', $this->formData(new Module(['product_id' => $product?->id])));
+        return view('modules.form', $this->formData($module));
     }
 
     public function store(ModuleRequest $request): RedirectResponse
@@ -139,7 +144,8 @@ class ModuleController extends Controller
 
         return [
             'module' => $module,
-            'products' => $this->productChoices(writableOnly: true),
+            'products' => ($module->exists ? [$module->product_id => $module->product->code.' — '.$module->product->name] : [])
+                + $this->productChoicesFor('modules.create', viaApplications: true),
             'applications' => Application::query()->visibleTo($user)->notArchived()->orderBy('code')->get()->mapWithKeys(fn ($a) => [$a->id => $a->code.' — '.$a->name]),
             'repositories' => Repository::query()->visibleTo($user)->notArchived()->orderBy('code')->get()->mapWithKeys(fn ($r) => [$r->id => $r->code]),
             'databases' => DatabaseReference::query()->visibleTo($user)->orderBy('code')->get()->mapWithKeys(fn ($d) => [$d->id => $d->code.' ('.$d->name.')']),

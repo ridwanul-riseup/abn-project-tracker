@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Support\Access\Capabilities;
 use App\Support\Audit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,15 +21,20 @@ use Illuminate\View\View;
  */
 class RoleController extends Controller
 {
-    private const ADMIN_GROUP = 'Administration';
+    private const ADMIN_GROUP = Capabilities::ADMIN_GROUP;
 
     public function index(): View
     {
         Gate::authorize('roles.manage');
 
+        $order = array_flip(array_keys(Capabilities::all()));
+
         return view('admin.roles.index', [
-            'roles' => Role::query()->with('permissions')->withCount('users')->orderBy('sort_order')->get(),
-            'permissions' => Permission::query()->orderBy('id')->get()->groupBy('group'),
+            'roles' => Role::query()->with('permissions')
+                ->withCount(['users', 'assignments' => fn ($q) => $q->whereNull('revoked_at')])
+                ->orderBy('sort_order')->get(),
+            'permissions' => Permission::query()->orderBy('id')->get()
+                ->sortBy(fn (Permission $p) => $order[$p->key] ?? PHP_INT_MAX)->groupBy('group'),
             'canEditAdmin' => $this->access()->isSuperAdmin($this->user()),
         ]);
     }
@@ -137,6 +143,9 @@ class RoleController extends Controller
         $users = $role->users()->count();
         if ($users > 0) {
             return back()->with('error', "“{$role->name}” is assigned to {$users} user(s). Reassign them first.");
+        }
+        if ($role->assignments()->exists()) {
+            return back()->with('error', "“{$role->name}” has scoped role assignments (active or in the history) and cannot be deleted.");
         }
 
         DB::transaction(function () use ($role) {
