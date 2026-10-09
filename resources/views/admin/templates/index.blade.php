@@ -15,8 +15,8 @@
                 @foreach ($templates as $template)
                     <tr @class(['table-secondary' => ! $template->is_active])>
                         <td class="text-nowrap">
-                            <form method="POST" action="{{ route('admin.templates.move', [$template, 'up']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move up" @disabled($loop->first)><i class="bi bi-arrow-up"></i></button></form>
-                            <form method="POST" action="{{ route('admin.templates.move', [$template, 'down']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move down" @disabled($loop->last)><i class="bi bi-arrow-down"></i></button></form>
+                            <form method="POST" action="{{ route('admin.templates.move', [$template, 'up']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move up" @disabled($loop->first && $templates->onFirstPage())><i class="bi bi-arrow-up"></i></button></form>
+                            <form method="POST" action="{{ route('admin.templates.move', [$template, 'down']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move down" @disabled($loop->last && ! $templates->hasMorePages())><i class="bi bi-arrow-down"></i></button></form>
                         </td>
                         <td><a class="fw-semibold" href="{{ route('admin.templates.edit', $template) }}">{{ $template->name }}</a>
                             @if ($template->description)<div class="small text-muted">{{ $template->description }}</div>@endif</td>
@@ -33,5 +33,6 @@
                 </tbody>
             </table>
         </div></div>
+        <div class="mt-3">{{ $templates->links() }}</div>
     @endif
 </x-layouts.app>

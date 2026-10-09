@@ -64,8 +64,8 @@ class ApplicationController extends Controller
 
         return view('applications.show', [
             'application' => $application->load(['product', 'applicationType', 'classification', 'status']),
-            'repositories' => Repository::query()->visibleTo($user)->where('application_id', $application->id)->with(['layer', 'status'])->orderBy('code')->get(),
-            'modules' => Module::query()->visibleTo($user)->where('application_id', $application->id)->with('status')->orderBy('code')->get(),
+            'repositories' => $this->paginateList(Repository::query()->visibleTo($user)->where('application_id', $application->id)->with(['layer', 'status'])->orderBy('code'), 'repositories'),
+            'modules' => $this->paginateList(Module::query()->visibleTo($user)->where('application_id', $application->id)->with('status')->orderBy('code'), 'modules'),
             'clarifications' => $this->clarificationsFor($application),
         ]);
     }

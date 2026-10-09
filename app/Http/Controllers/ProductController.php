@@ -89,11 +89,11 @@ class ProductController extends Controller
 
         return view('products.show', [
             'product' => $product->load('status'),
-            'applications' => Application::query()->visibleTo($user)->where('product_id', $product->id)->with(['applicationType', 'classification', 'status'])->orderBy('code')->get(),
-            'repositories' => Repository::query()->visibleTo($user)->where('product_id', $product->id)->with(['layer', 'status', 'application'])->orderBy('code')->get(),
-            'modules' => Module::query()->visibleTo($user)->where('product_id', $product->id)->with(['status', 'primaryRepository'])->orderBy('code')->get(),
+            'applications' => $this->paginateList(Application::query()->visibleTo($user)->where('product_id', $product->id)->with(['applicationType', 'classification', 'status'])->orderBy('code'), 'applications'),
+            'repositories' => $this->paginateList(Repository::query()->visibleTo($user)->where('product_id', $product->id)->with(['layer', 'status', 'application'])->orderBy('code'), 'repositories'),
+            'modules' => $this->paginateList(Module::query()->visibleTo($user)->where('product_id', $product->id)->with(['status', 'primaryRepository'])->orderBy('code'), 'modules'),
             'databases' => DatabaseReference::query()->visibleTo($user)->where('product_id', $product->id)->orderBy('code')->get(),
-            'documents' => Document::query()->visibleTo($user)->notArchived()->where('product_id', $product->id)->with('category')->orderBy('title')->get(),
+            'documents' => $this->paginateList(Document::query()->visibleTo($user)->notArchived()->where('product_id', $product->id)->with('category')->orderBy('title'), 'documents'),
             'openTasks' => Task::query()->visibleTo($user)->where('product_id', $product->id)->whereIn('status_id', $openStatuses)->count(),
             'dependencyCount' => ComponentDependency::query()->visibleTo($user)
                 ->where(fn ($q) => $q->where('source_type', 'repository')->whereIn('source_id', Repository::query()->where('product_id', $product->id)->select('id')))

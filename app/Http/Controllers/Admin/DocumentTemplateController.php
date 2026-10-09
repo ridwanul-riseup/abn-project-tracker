@@ -28,7 +28,7 @@ class DocumentTemplateController extends Controller
         Gate::authorize('settings.manage');
 
         return view('admin.templates.index', [
-            'templates' => DocumentTemplate::query()->with('category')->ordered()->get(),
+            'templates' => DocumentTemplate::query()->with('category')->ordered()->paginate($this->perPage()),
         ]);
     }
 

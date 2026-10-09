@@ -1,6 +1,7 @@
 <x-layouts.app :title="$product->code" :breadcrumbs="['Products' => route('products.index'), $product->code => null]">
     <x-page-header :title="$product->code.' — '.$product->name" :subtitle="$product->description">
         <x-slot:actions>
+            <a href="{{ route('reports.product', $product) }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-bar-chart-line"></i> Progress report</a>
             @can('docs.create-in', $product)
                 <a href="{{ route('docs.create', ['product_id' => $product->id]) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-journal-plus"></i> New document</a>
             @endcan
@@ -22,10 +23,10 @@
     <x-needs-clarification :items="$clarifications" />
 
     <div class="row g-3 mb-3">
-        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Applications</div><div class="stat-value">{{ $applications->count() }}</div></div></div></div>
-        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Repositories</div><div class="stat-value">{{ $repositories->count() }}</div></div></div></div>
-        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Modules</div><div class="stat-value">{{ $modules->count() }}</div></div></div></div>
-        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Open tasks</div><div class="stat-value"><a href="{{ route('tasks.index', ['product' => $product->id]) }}">{{ $openTasks }}</a></div></div></div></div>
+        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Applications</div><div class="stat-value">{{ $applications->total() }}</div></div></div></div>
+        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Repositories</div><div class="stat-value">{{ $repositories->total() }}</div></div></div></div>
+        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Modules</div><div class="stat-value">{{ $modules->total() }}</div></div></div></div>
+        <div class="col-md-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">Open tasks</div><div class="stat-value"><a href="{{ route('tasks.index', ['product_id' => $product->id]) }}">{{ $openTasks }}</a></div></div></div></div>
     </div>
 
     <div class="row g-3">
@@ -51,7 +52,7 @@
                     @endif
                 </div>
             </div>
-            <div class="card">
+            <div class="card" id="documents">
                 <div class="card-header">Documentation</div>
                 <ul class="list-group list-group-flush">
                     @forelse ($documents as $doc)
@@ -60,11 +61,12 @@
                         <li class="list-group-item"><x-empty message="No documents yet." icon="bi-journal" /></li>
                     @endforelse
                 </ul>
+                <x-list-pager :items="$documents" />
             </div>
         </div>
 
         <div class="col-lg-8">
-            <div class="card mb-3">
+            <div class="card mb-3" id="applications">
                 <div class="card-header">Applications</div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <thead class="table-light"><tr><th>ID</th><th>Application</th><th>Type</th><th>FE/BE</th><th>Status</th></tr></thead>
@@ -76,8 +78,9 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$applications" />
             </div>
-            <div class="card mb-3">
+            <div class="card mb-3" id="repositories">
                 <div class="card-header">Repositories</div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <thead class="table-light"><tr><th>ID</th><th>Repository</th><th>Application</th><th>Layer</th><th>Status</th></tr></thead>
@@ -89,9 +92,10 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$repositories" />
             </div>
-            <div class="card">
-                <div class="card-header">Modules</div>
+            <div class="card" id="modules">
+                <div class="card-header d-flex justify-content-between"><span>Modules</span><a class="small" href="{{ route('reports.product', $product) }}">Module progress report</a></div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <thead class="table-light"><tr><th>ID</th><th>Module</th><th>Primary repository</th><th>Status</th></tr></thead>
                     <tbody>
@@ -102,6 +106,7 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$modules" />
             </div>
         </div>
     </div>

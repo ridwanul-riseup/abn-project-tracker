@@ -19,4 +19,5 @@
             </tbody>
         </table>
     </div></div>
+    <div class="mt-3">{{ $groups->links() }}</div>
 </x-layouts.app>

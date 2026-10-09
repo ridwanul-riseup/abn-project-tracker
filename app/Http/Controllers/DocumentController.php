@@ -143,7 +143,7 @@ class DocumentController extends Controller
             'fileMissing' => ! $exists,
             'changedOutside' => $this->documents->changedOutsideHub($document),
             'repoLinks' => $this->documents->repositoryLinks($document),
-            'tasks' => $document->tasks()->visibleTo($this->user())->with(['status', 'priority'])->get(),
+            'tasks' => $this->paginateList($document->tasks()->visibleTo($this->user())->with(['status', 'priority'])->orderBy('tasks.product_id')->orderBy('tasks.number'), 'tasks'),
             'revisionCount' => $document->revisions()->count(),
         ]);
     }

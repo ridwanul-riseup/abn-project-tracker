@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\Product;
 use App\Models\Repository;
 use App\Models\Role;
+use App\Models\Task;
 use App\Models\User;
 use App\Support\Docs\DocumentService;
 use App\Support\Options\Options;
@@ -80,6 +81,18 @@ function makeModule(Product $product, string $code, array $attributes = []): Mod
         'name' => $attributes['name'] ?? "Module {$code}",
         'product_id' => $product->id,
         ...$attributes,
+    ]);
+}
+
+function makeTask(int $productId, array $attributes = []): Task
+{
+    $number = Task::query()->count() + 1;
+
+    return Task::query()->create([
+        'key' => 'T-'.$number, 'number' => $number,
+        'title' => 'Existing task', 'product_id' => $productId,
+        'type_id' => optionId('task_type', 'feature'), 'status_id' => optionId('task_status', 'todo'),
+        'priority_id' => optionId('priority', 'low'), ...$attributes,
     ]);
 }
 

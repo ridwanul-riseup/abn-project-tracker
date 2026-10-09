@@ -37,7 +37,7 @@
                 </dl>
                 @if ($module->notes)<hr><div class="small text-muted">{!! nl2br(e($module->notes)) !!}</div>@endif
             </div></div>
-            <div class="card">
+            <div class="card" id="documents">
                 <div class="card-header">Technical documentation</div>
                 <ul class="list-group list-group-flush small">
                     @forelse ($documents as $doc)
@@ -46,11 +46,25 @@
                         <li class="list-group-item text-muted">No documentation yet.</li>
                     @endforelse
                 </ul>
+                <x-list-pager :items="$documents" />
             </div>
         </div>
         <div class="col-lg-7">
-            <div class="card mb-3">
-                <div class="card-header">Recent tasks</div>
+            <div class="card mb-3" id="tasks">
+                <div class="card-header d-flex justify-content-between">
+                    <span>Tasks</span>
+                    <a class="small" href="{{ route('tasks.index', ['module_id' => $module->id, 'state' => 'all']) }}">Open in task list</a>
+                </div>
+                @if ($taskSummary->total > 0)
+                    <div class="card-body py-2 border-bottom small d-flex flex-wrap gap-3 align-items-center">
+                        <span><strong>{{ $taskSummary->total }}</strong> total</span>
+                        <a href="{{ route('tasks.index', ['module_id' => $module->id]) }}"><strong>{{ $taskSummary->active() }}</strong> active</a>
+                        @if ($taskSummary->blocked)<a class="text-danger" href="{{ route('tasks.index', ['module_id' => $module->id, 'state' => 'blocked']) }}"><strong>{{ $taskSummary->blocked }}</strong> blocked</a>@endif
+                        @if ($taskSummary->overdue)<a class="text-danger" href="{{ route('tasks.index', ['module_id' => $module->id, 'due' => 'overdue']) }}"><strong>{{ $taskSummary->overdue }}</strong> overdue</a>@endif
+                        <a class="text-success" href="{{ route('tasks.index', ['module_id' => $module->id, 'state' => 'closed']) }}"><strong>{{ $taskSummary->closed }}</strong> closed</a>
+                        <span class="ms-auto">@include('reports.partials.progress', ['summary' => $taskSummary])</span>
+                    </div>
+                @endif
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <tbody>
                     @forelse ($tasks as $task)
@@ -60,8 +74,9 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$tasks" />
             </div>
-            <div class="card">
+            <div class="card" id="dependencies">
                 <div class="card-header">Dependencies</div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <tbody>
@@ -72,6 +87,7 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$dependencies" />
             </div>
         </div>
     </div>

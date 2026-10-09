@@ -2,6 +2,7 @@
     $nav = [
         'Overview' => [
             ['Dashboard', 'dashboard', 'bi-speedometer2', 'dashboard', true],
+            ['Reports', 'reports.index', 'bi-bar-chart-line', 'reports.*', true],
         ],
         'Inventory' => [
             ['Products', 'products.index', 'bi-box-seam', 'products.*', true],

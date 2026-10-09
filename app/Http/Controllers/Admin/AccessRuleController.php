@@ -47,11 +47,11 @@ class AccessRuleController extends Controller
         $effective = [];
         foreach (['product', 'application', 'repository', 'module'] as $type) {
             $class = self::SCOPE_MODELS[$type];
-            $effective[$type] = $class::query()->orderBy('code')->get()
-                ->map(fn (Model $m) => ['model' => $m, 'level' => $access->level($user, $m)]);
+            $effective[$type] = $this->paginateList($class::query()->orderBy('code'), "effective_{$type}")
+                ->through(fn (Model $m) => ['model' => $m, 'level' => $access->level($user, $m)]);
         }
-        $documents = Document::query()->orderBy('path')->get()
-            ->map(fn (Document $d) => ['model' => $d, 'level' => $access->level($user, $d)]);
+        $documents = $this->paginateList(Document::query()->orderBy('path'), 'effective_document')
+            ->through(fn (Model $d) => ['model' => $d, 'level' => $access->level($user, $d)]);
 
         $roleCapabilities = $access->isSuperAdmin($user)
             ? array_keys(Capabilities::all())
@@ -59,8 +59,8 @@ class AccessRuleController extends Controller
 
         return view('admin.users.access', [
             'target' => $user,
-            'activeRules' => $user->accessRules()->active()->with('granter')->latest('id')->get(),
-            'revokedRules' => $user->accessRules()->whereNotNull('revoked_at')->with(['granter', 'revoker'])->latest('revoked_at')->limit(50)->get(),
+            'activeRules' => $this->paginateList($user->accessRules()->active()->with('granter')->latest('id'), 'active_rules'),
+            'revokedRules' => $this->paginateList($user->accessRules()->whereNotNull('revoked_at')->with(['granter', 'revoker'])->latest('revoked_at'), 'revoked_rules'),
             'effective' => $effective,
             'documents' => $documents,
             'scopeChoices' => $this->scopeChoices(),

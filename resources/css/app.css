@@ -149,6 +149,36 @@ body {
     min-height: 480px;
 }
 
+.hub-progress {
+    width: 90px;
+    height: 0.6rem;
+    vertical-align: middle;
+    appearance: none;
+    border: 0;
+    border-radius: 1rem;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.hub-progress::-webkit-progress-bar {
+    background: #e9ecef;
+    border-radius: 1rem;
+}
+
+.hub-progress::-webkit-progress-value {
+    background: var(--bs-success);
+    border-radius: 1rem;
+}
+
+.hub-progress::-moz-progress-bar {
+    background: var(--bs-success);
+    border-radius: 1rem;
+}
+
+.distribution-count {
+    min-width: 2.5rem;
+}
+
 .changes-cell {
     max-width: 480px;
     font-size: 0.8rem;

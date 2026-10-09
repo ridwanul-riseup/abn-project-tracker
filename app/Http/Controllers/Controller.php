@@ -7,7 +7,10 @@ use App\Models\Product;
 use App\Models\User;
 use App\Support\Access\AccessService;
 use App\Support\Options\Options;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 abstract class Controller
@@ -33,6 +36,19 @@ abstract class Controller
     protected function perPage(): int
     {
         return (int) config('hub.per_page', 25);
+    }
+
+    /**
+     * Paginate a related list on a detail page. Each list uses its own page
+     * parameter so several lists on one page can be paged independently.
+     *
+     * @param  Builder<covariant Model>|Relation<covariant Model, covariant Model, mixed>  $query
+     * @return LengthAwarePaginator<int, Model>
+     */
+    protected function paginateList(Builder|Relation $query, string $pageName): LengthAwarePaginator
+    {
+        return $query->paginate((int) config('hub.detail_per_page', 10), ['*'], $pageName)
+            ->withQueryString()->fragment($pageName);
     }
 
     /**

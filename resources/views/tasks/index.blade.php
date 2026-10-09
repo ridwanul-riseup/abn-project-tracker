@@ -15,9 +15,28 @@
         <li class="nav-item ms-2"><a class="nav-link py-1 @if (request()->boolean('mine')) active @endif" href="{{ request()->fullUrlWithQuery(['mine' => request()->boolean('mine') ? null : 1, 'page' => null]) }}"><i class="bi bi-person"></i> Assigned to me</a></li>
     </ul>
 
+    @php
+        $extraFilters = array_filter([
+            'due' => ['overdue' => 'Overdue', 'soon' => 'Due in the next '.\App\Support\Reports\TaskReport::DUE_SOON_DAYS.' days'][request('due')] ?? null,
+            'unassigned' => request()->boolean('unassigned') ? 'Unassigned' : null,
+            'no_module' => request()->boolean('no_module') ? 'Not linked to a module' : null,
+            'module_id' => request()->integer('module_id') ? 'Module: '.($filterModule?->code ?? 'selected') : null,
+            'repository_id' => request()->integer('repository_id') ? 'Repository: '.($filterRepository?->code ?? 'selected') : null,
+        ]);
+    @endphp
+    @if ($extraFilters)
+        <div class="mb-2 d-flex flex-wrap gap-1 align-items-center small">
+            <span class="text-muted">Also filtered by:</span>
+            @foreach ($extraFilters as $param => $label)
+                <a class="badge text-bg-light border text-decoration-none" href="{{ request()->fullUrlWithQuery([$param => null, 'page' => null]) }}" title="Remove this filter">{{ $label }} <i class="bi bi-x"></i></a>
+            @endforeach
+        </div>
+    @endif
+
     <form class="card card-body mb-3 py-2" method="GET">
         <input type="hidden" name="state" value="{{ $state }}">
         @if (request()->boolean('mine'))<input type="hidden" name="mine" value="1">@endif
+        @foreach (array_keys($extraFilters) as $param)<input type="hidden" name="{{ $param }}" value="{{ request($param) }}">@endforeach
         <div class="row g-2 align-items-end">
             <div class="col-md-3"><input class="form-control form-control-sm" name="q" value="{{ request('q') }}" placeholder="Key or title…"></div>
             <div class="col-md-2">

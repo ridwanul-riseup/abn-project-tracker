@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\Repository;
 use App\Models\Task;
 use App\Support\Audit;
+use App\Support\Reports\TaskReport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -76,9 +77,10 @@ class ModuleController extends Controller
         return view('modules.show', [
             'module' => $module->load(['product', 'application', 'primaryRepository', 'databaseReference', 'status', 'priority']),
             'relatedRepositories' => $module->relatedRepositories()->visibleTo($user)->orderBy('code')->get(),
-            'documents' => Document::query()->visibleTo($user)->notArchived()->where('module_id', $module->id)->with('category')->orderBy('title')->get(),
-            'tasks' => Task::query()->visibleTo($user)->where('module_id', $module->id)->with(['status', 'priority', 'assignee'])->latest('updated_at')->limit(15)->get(),
-            'dependencies' => (clone $deps)->where(fn ($q) => $q->where(['source_type' => 'module', 'source_id' => $module->id])->orWhere(fn ($w) => $w->where(['target_type' => 'module', 'target_id' => $module->id])))->get(),
+            'documents' => $this->paginateList(Document::query()->visibleTo($user)->notArchived()->where('module_id', $module->id)->with('category')->orderBy('title'), 'documents'),
+            'tasks' => $this->paginateList(Task::query()->visibleTo($user)->where('module_id', $module->id)->with(['status', 'priority', 'assignee'])->latest('updated_at'), 'tasks'),
+            'taskSummary' => app(TaskReport::class)->total(Task::query()->visibleTo($user)->where('module_id', $module->id)),
+            'dependencies' => $this->paginateList((clone $deps)->where(fn ($q) => $q->where(['source_type' => 'module', 'source_id' => $module->id])->orWhere(fn ($w) => $w->where(['target_type' => 'module', 'target_id' => $module->id])))->orderBy('code'), 'dependencies'),
             'clarifications' => $this->clarificationsFor($module),
         ]);
     }

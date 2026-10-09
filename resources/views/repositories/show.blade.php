@@ -59,7 +59,7 @@
                                 <a class="badge text-bg-light border text-decoration-none" href="{{ route('registries.show', ['environments', $env->id]) }}">{{ $env->name }}</a>
                             @empty — @endforelse
                         </dd>
-                        <dt class="col-5">Open tasks</dt><dd class="col-7"><a href="{{ route('tasks.index', ['repository' => $repository->id]) }}">{{ $openTasks }}</a></dd>
+                        <dt class="col-5">Open tasks</dt><dd class="col-7"><a href="{{ route('tasks.index', ['repository_id' => $repository->id]) }}">{{ $openTasks }}</a></dd>
                     </dl>
                     @if ($repository->notes)
                         <hr><div class="small">{!! nl2br(e($repository->notes)) !!}</div>
@@ -75,7 +75,7 @@
         </div>
 
         <div class="col-lg-7">
-            <div class="card mb-3">
+            <div class="card mb-3" id="depends_on">
                 <div class="card-header">Dependencies — this repository depends on</div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <thead class="table-light"><tr><th>ID</th><th>Target</th><th>Type</th><th>Criticality</th><th>Failure impact</th></tr></thead>
@@ -93,8 +93,9 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$dependsOn" />
             </div>
-            <div class="card mb-3">
+            <div class="card mb-3" id="used_by">
                 <div class="card-header">Used by — components that depend on this repository</div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <thead class="table-light"><tr><th>ID</th><th>Source</th><th>Type</th><th>Criticality</th><th>Failure impact</th></tr></thead>
@@ -112,11 +113,12 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$usedBy" />
             </div>
 
             <div class="row g-3">
                 <div class="col-md-6">
-                    <div class="card h-100">
+                    <div class="card h-100" id="documents">
                         <div class="card-header">Related documents</div>
                         <ul class="list-group list-group-flush small">
                             @forelse ($documents as $doc)
@@ -125,10 +127,11 @@
                                 <li class="list-group-item text-muted">No documents linked.</li>
                             @endforelse
                         </ul>
+                        <x-list-pager :items="$documents" />
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card h-100">
+                    <div class="card h-100" id="modules">
                         <div class="card-header">Modules</div>
                         <ul class="list-group list-group-flush small">
                             @forelse ($modules as $module)
@@ -137,10 +140,11 @@
                                 <li class="list-group-item text-muted">No modules reference this repository.</li>
                             @endforelse
                         </ul>
+                        <x-list-pager :items="$modules" />
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card h-100">
+                    <div class="card h-100" id="siblings">
                         <div class="card-header">Related repositories (same application)</div>
                         <ul class="list-group list-group-flush small">
                             @forelse ($siblings as $sibling)
@@ -149,6 +153,7 @@
                                 <li class="list-group-item text-muted">None.</li>
                             @endforelse
                         </ul>
+                        <x-list-pager :items="$siblings" />
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -171,7 +176,7 @@
                     </div>
                 </div>
                 <div class="col-12">
-                    <div class="card">
+                    <div class="card" id="deployments">
                         <div class="card-header">Deployments</div>
                         <div class="table-responsive"><table class="table table-sm mb-0">
                             <thead class="table-light"><tr><th>ID</th><th>Environment</th><th>Branch</th><th>Version</th><th>Status</th></tr></thead>
@@ -183,6 +188,7 @@
                             @endforelse
                             </tbody>
                         </table></div>
+                        <x-list-pager :items="$deployments" />
                     </div>
                 </div>
             </div>

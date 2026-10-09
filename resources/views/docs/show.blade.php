@@ -46,13 +46,14 @@
                 </dl>
             </div></div>
             @if ($tasks->isNotEmpty())
-                <div class="card small mt-3">
+                <div class="card small mt-3" id="tasks">
                     <div class="card-header">Linked tasks</div>
                     <ul class="list-group list-group-flush">
                         @foreach ($tasks as $task)
                             <li class="list-group-item"><a href="{{ route('tasks.show', $task) }}">{{ $task->key }}</a> {{ $task->title }} <x-option-badge :option="$task->status" /></li>
                         @endforeach
                     </ul>
+                    <x-list-pager :items="$tasks" />
                 </div>
             @endif
         </div>

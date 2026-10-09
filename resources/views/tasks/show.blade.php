@@ -40,7 +40,7 @@
             @endcan
 
             <div class="card" id="comments">
-                <div class="card-header">Comments ({{ $comments->count() }})</div>
+                <div class="card-header">Comments ({{ $comments->total() }})</div>
                 <ul class="list-group list-group-flush">
                     @forelse ($comments as $comment)
                         <li class="list-group-item">
@@ -51,6 +51,7 @@
                         <li class="list-group-item text-muted small">No comments yet.</li>
                     @endforelse
                 </ul>
+                <x-list-pager :items="$comments" />
                 @can('comment', $task)
                     <div class="card-body border-top">
                         <form method="POST" action="{{ route('tasks.comments.store', $task) }}">
@@ -81,7 +82,7 @@
                     <dt class="text-muted">Updated</dt><dd>{{ $task->updated_at?->format('Y-m-d H:i') }}</dd>
                 </dl>
             </div></div>
-            <div class="card small mt-3">
+            <div class="card small mt-3" id="documents">
                 <div class="card-header">Linked documents</div>
                 <ul class="list-group list-group-flush">
                     @forelse ($documents as $doc)
@@ -93,6 +94,7 @@
                         <li class="list-group-item text-muted fst-italic"><i class="bi bi-lock"></i> {{ $hiddenDocuments }} restricted {{ \Illuminate\Support\Str::plural('document', $hiddenDocuments) }}</li>
                     @endif
                 </ul>
+                <x-list-pager :items="$documents" />
             </div>
         </div>
     </div>

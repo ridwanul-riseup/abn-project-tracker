@@ -23,4 +23,7 @@ return [
     'csp_enabled' => (bool) env('HUB_CSP_ENABLED', false),
 
     'per_page' => 25,
+
+    // Related lists on detail pages (e.g. a product's modules) and admin sub-lists.
+    'detail_per_page' => 10,
 ];

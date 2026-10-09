@@ -22,6 +22,8 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | J | Dependencies (repository/module/API/database/integration, criticality, failure impact) | Done | `DependencyController`, `ComponentDependency`, `resources/views/dependencies/*` | No graph visualisation | Optional dependency graph view |
 | K | API / database / Figma / environment / deployment / release / integration references (no secrets) | Done | `RegistryController`, `app/Support/Registries.php`, `resources/views/registries/*` | Deployment records are manual; no CI/CD integration | — |
 | L | Audit log | Done | `Audit`, `Auditable`, `ActivityFeed`, `Admin/ActivityLogController` | Logins not audited; no retention policy | Define retention period |
+| — | Progress reports: portfolio (per product), product (per module, type, priority; overdue / due-soon / blocked lists), modules across products, workload per assignee. Columns follow the configured task statuses; every number links to the matching filtered task list | Done | `ReportController`, `app/Support/Reports/*`, `resources/views/reports/*` | Counts only; no charts, burndown, history or export. "Progress" counts closed tasks (done and cancelled alike) | Add CSV export / trend history if needed |
+| — | Pagination on every list (index pages, admin lists, related lists on detail pages with independent page parameters) | Done | `Controller::paginateList`, `components/list-pager.blade.php` | Roles capability matrix is one form and stays on one page; search shows the top results per type | — |
 | — | Global search (permission-aware, includes document content) | Done | `SearchController`, `resources/views/search.blade.php` | Document content search scans files | FULLTEXT index if docs grow |
 | — | Needs Clarification tracking (workbook gaps, resolve/reopen) | Done | `ClarificationController`, `Clarification`, `WorkbookSeeder` | Clarifications are created by the seeder; no "new clarification" form | Add a create form if the team wants it |
 | — | Profile (name, password change with current password) | Done | `ProfileController`, `resources/views/profile/edit.blade.php` | Users cannot change their own email (administrators can) | — |
@@ -48,7 +50,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | 1 | Administration | Done | `tests/Feature/AdministrationTest.php` |
 | 2 | Access control | Done | `tests/Feature/AccessControlTest.php` |
 | 3 | Documentation | Done | `tests/Feature/DocumentationTest.php` |
-| 4 | Development tracking | Done | `tests/Feature/TaskTrackingTest.php` |
+| 4 | Development tracking | Done | `tests/Feature/TaskTrackingTest.php`, `tests/Feature/ReportsTest.php` |
 | 5 | Global settings | Done | `tests/Feature/GlobalSettingsTest.php`, `tests/Feature/DynamicConfigurationTest.php` |
 | 6 | Project inventory | Done | `tests/Feature/InventoryTest.php` |
 | 7 | Installation (clone, configure, migrate, seed, start) | Done (manual) | No automated test. Migrate + seed verified locally; CI runs `composer setup` (install, key, migrate, asset build). |
@@ -77,7 +79,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 Most recent run, executed on 2026-10-09 with `php artisan test`, `vendor/bin/phpstan analyse`
 and `vendor/bin/pint --test` against MySQL 8.4 (`ab_project_hub_test`):
 
-- Pest: **91 passed, 0 failed** (636 assertions)
+- Pest: **103 passed, 0 failed** (730 assertions)
 - PHPStan (level 7): **0 errors**
 - Pint: **passed**
 - `npm run build`: succeeded

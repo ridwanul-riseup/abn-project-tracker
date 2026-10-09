@@ -28,7 +28,7 @@
             </div></div>
         </div>
         <div class="col-lg-8">
-            <div class="card mb-3">
+            <div class="card mb-3" id="repositories">
                 <div class="card-header">Related repositories</div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
                     <thead class="table-light"><tr><th>ID</th><th>Repository</th><th>Layer</th><th>Status</th></tr></thead>
@@ -40,8 +40,9 @@
                     @endforelse
                     </tbody>
                 </table></div>
+                <x-list-pager :items="$repositories" />
             </div>
-            <div class="card">
+            <div class="card" id="modules">
                 <div class="card-header">Modules</div>
                 <ul class="list-group list-group-flush">
                     @forelse ($modules as $module)
@@ -50,6 +51,7 @@
                         <li class="list-group-item"><x-empty message="No modules linked to this application." /></li>
                     @endforelse
                 </ul>
+                <x-list-pager :items="$modules" />
             </div>
         </div>
     </div>

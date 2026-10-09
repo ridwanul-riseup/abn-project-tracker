@@ -63,8 +63,8 @@
                 </div>
             @endunless
 
-            <div class="card mb-3">
-                <div class="card-header">Active rules ({{ $activeRules->count() }})</div>
+            <div class="card mb-3" id="active_rules">
+                <div class="card-header">Active rules ({{ $activeRules->total() }})</div>
                 <ul class="list-group list-group-flush small">
                     @forelse ($activeRules as $rule)
                         <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
@@ -79,6 +79,7 @@
                         <li class="list-group-item text-muted">No active rules. The user only sees documents visible to all users.</li>
                     @endforelse
                 </ul>
+                <x-list-pager :items="$activeRules" />
             </div>
 
             <div class="card mb-3">
@@ -90,7 +91,7 @@
                 </ul>
             </div>
 
-            <div class="card">
+            <div class="card" id="revoked_rules">
                 <div class="card-header">Grant and revoke history</div>
                 <ul class="list-group list-group-flush small">
                     @forelse ($revokedRules as $rule)
@@ -102,6 +103,7 @@
                         <li class="list-group-item text-muted">No revoked rules.</li>
                     @endforelse
                 </ul>
+                <x-list-pager :items="$revokedRules" />
             </div>
         </div>
 
@@ -110,7 +112,7 @@
                 <div class="card-header">Effective access</div>
                 <div class="card-body small text-muted pb-0">Computed with the same rules the application enforces.</div>
                 @foreach (['product' => 'Products', 'application' => 'Applications', 'repository' => 'Repositories', 'module' => 'Modules'] as $type => $title)
-                    <div class="px-3 pt-3 fw-semibold small">{{ $title }}</div>
+                    <div class="px-3 pt-3 fw-semibold small" id="effective_{{ $type }}">{{ $title }}</div>
                     <div class="table-responsive">
                         <table class="table table-sm mb-0">
                             @foreach ($effective[$type] as $row)
@@ -118,8 +120,9 @@
                             @endforeach
                         </table>
                     </div>
+                    <x-list-pager :items="$effective[$type]" />
                 @endforeach
-                <div class="px-3 pt-3 fw-semibold small">Documents</div>
+                <div class="px-3 pt-3 fw-semibold small" id="effective_document">Documents</div>
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">
                         @foreach ($documents as $row)
@@ -127,6 +130,7 @@
                         @endforeach
                     </table>
                 </div>
+                <x-list-pager :items="$documents" />
             </div>
         </div>
     </div>

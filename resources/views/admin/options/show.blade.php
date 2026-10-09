@@ -15,8 +15,8 @@
                 @php $formId = 'opt-'.$option->id; $count = array_sum(array_column($usage[$option->id], 'count')); @endphp
                 <tr @class(['table-secondary' => ! $option->is_active])>
                     <td class="text-nowrap">
-                        <form method="POST" action="{{ route('admin.options.move', [$option, 'up']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move up" @disabled($loop->first)><i class="bi bi-arrow-up"></i></button></form>
-                        <form method="POST" action="{{ route('admin.options.move', [$option, 'down']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move down" @disabled($loop->last)><i class="bi bi-arrow-down"></i></button></form>
+                        <form method="POST" action="{{ route('admin.options.move', [$option, 'up']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move up" @disabled($loop->first && $options->onFirstPage())><i class="bi bi-arrow-up"></i></button></form>
+                        <form method="POST" action="{{ route('admin.options.move', [$option, 'down']) }}" class="d-inline">@csrf<button class="btn btn-sm btn-link p-0" title="Move down" @disabled($loop->last && ! $options->hasMorePages())><i class="bi bi-arrow-down"></i></button></form>
                     </td>
                     <td>
                         <input form="{{ $formId }}" name="label" value="{{ $option->label }}" class="form-control form-control-sm mb-1" required maxlength="120" aria-label="Label">
@@ -63,6 +63,7 @@
             </tbody>
         </table>
     </div></div>
+    <div class="mb-3">{{ $options->links() }}</div>
 
     <div class="card">
         <div class="card-header">Add option</div>

@@ -44,6 +44,9 @@ function smokeUrls(Product $ott, $doc, $task): array
         route('clarifications.index'),
         route('docs.index'), route('docs.create', ['product_id' => $ott->id, 'template' => 'architecture']), route('docs.show', $doc), route('docs.edit', $doc), route('docs.history', $doc),
         route('tasks.index'), route('tasks.create'), route('tasks.show', $task), route('tasks.edit', $task),
+        route('tasks.index', ['due' => 'overdue', 'unassigned' => 1, 'no_module' => 1, 'repository_id' => $repo->id]),
+        route('reports.index'), route('reports.product', $ott), route('reports.modules'), route('reports.workload'),
+        route('reports.index', ['archived' => 1, 'type_id' => $task->type_id]),
     ];
     if ($module) {
         array_push($urls, route('modules.show', $module), route('modules.edit', $module));

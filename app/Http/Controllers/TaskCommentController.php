@@ -27,6 +27,9 @@ class TaskCommentController extends Controller
         $task->touch();
         Audit::record('task.commented', $task);
 
-        return redirect()->to(route('tasks.show', $task).'#comments')->with('status', 'Comment added.');
+        $lastPage = (int) ceil($task->comments()->count() / max(1, (int) config('hub.detail_per_page', 10)));
+
+        return redirect()->to(route('tasks.show', [$task, 'comments' => $lastPage > 1 ? $lastPage : null]).'#comments')
+            ->with('status', 'Comment added.');
     }
 }

@@ -1,5 +1,9 @@
 <x-layouts.app title="Dashboard">
-    <x-page-header title="Dashboard" subtitle="AB Digital Ecosystem — products, repositories, documentation and development tasks you have access to." />
+    <x-page-header title="Dashboard" subtitle="AB Digital Ecosystem — products, repositories, documentation and development tasks you have access to.">
+        <x-slot:actions>
+            <a href="{{ route('reports.index') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-bar-chart-line"></i> Progress reports</a>
+        </x-slot:actions>
+    </x-page-header>
 
     <div class="row g-3 mb-3">
         @foreach ([

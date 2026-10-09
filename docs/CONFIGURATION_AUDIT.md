@@ -102,8 +102,9 @@ clear).
    admin-managed.
 5. **Rate limits, password policy, login throttling, CSP and session settings:** security
    controls set in code and `.env` so they cannot be relaxed from the UI.
-6. **Technical limits** (`config/hub.php` page size and max document size, search limits): these
-   are operational settings, not business data.
+6. **Technical limits** (`config/hub.php` page sizes `per_page` / `detail_per_page`, max document
+   size, search limits, the 7-day "due soon" window in reports): these are operational settings,
+   not business data.
 7. **Registry field definitions and component types** (`Registries`,
    `ComponentDependency::COMPONENT_TYPES`): tied to table columns and morph types.
 8. **Option colours:** a fixed Bootstrap palette, so that badges stay readable under the CSP (no

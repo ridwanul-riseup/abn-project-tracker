@@ -45,6 +45,9 @@ becomes a problem.
 | No sub-tasks, sprints, estimates or time tracking. | Out of scope for the MVP. |
 | No synchronisation with GitHub/Jira issues — only an *Issue URL* link. | Status must be updated in the hub manually. |
 | A task's product cannot be changed after creation (task keys are per product). | Create a new task in the other product. |
+| Reports show current counts only: no charts, burndown, history or CSV export. | Trends must be tracked outside the hub. |
+| Report "progress" is closed ÷ total, and cancelled tasks count as closed (status behaviour `closed`). | A module with many cancelled tasks looks further along than it is. |
+| The roles capability matrix is not paginated (it is saved as one form). Search shows the top results per type instead of pages. | Use the list pages for complete results. |
 
 ## Operations and testing
 

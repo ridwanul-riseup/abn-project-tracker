@@ -18,16 +18,6 @@ function selectedOption(int $id): string
     return '<option value="'.$id.'" selected>';
 }
 
-function makeTask(int $productId, array $attributes = []): Task
-{
-    return Task::query()->create([
-        'key' => 'OTT-'.(Task::query()->count() + 1), 'number' => Task::query()->count() + 1,
-        'title' => 'Existing task', 'product_id' => $productId,
-        'type_id' => optionId('task_type', 'feature'), 'status_id' => optionId('task_status', 'todo'),
-        'priority_id' => optionId('priority', 'low'), ...$attributes,
-    ]);
-}
-
 it('adds an option that appears in every form that uses its group', function () {
     $this->actingAs(superAdmin());
     makeProduct('OTT');

@@ -86,6 +86,19 @@ Document templates (`document_templates`) and custom roles are also managed in t
 See [CONFIGURATION_AUDIT.md](CONFIGURATION_AUDIT.md) for what is configurable and what stays
 static by design.
 
+## Reports and pagination
+
+*Reports* (`ReportController`, `App\Support\Reports\TaskReport`) aggregate tasks with one grouped
+SQL query per view (count per status plus overdue, due within 7 days and unassigned), always
+starting from `Task::visibleTo($user)`. Products, modules and people outside the viewer's access
+are not listed. Tasks under a module the viewer cannot see are counted in an unnamed
+"outside your access" row. Each number links to `tasks.index` with matching filters (`status_id`,
+`module_id`, `no_module`, `due=overdue|soon`, `unassigned`).
+
+All lists are paginated: index pages use `hub.per_page` (25), related lists on detail pages use
+`Controller::paginateList()` with `hub.detail_per_page` (10) and their own page parameter
+(e.g. `?modules=2`), so several lists on one page page independently.
+
 ## Front end
 
 Server-rendered pages with Bootstrap. JavaScript is limited to progressive enhancements

@@ -17,6 +17,7 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistryController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskCommentController;
@@ -80,6 +81,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('tasks', TaskController::class)->except('destroy');
     Route::patch('tasks/{task}/progress', [TaskController::class, 'progress'])->name('tasks.progress');
     Route::post('tasks/{task}/comments', [TaskCommentController::class, 'store'])->middleware('throttle:sensitive')->name('tasks.comments.store');
+
+    // Reports (read-only, limited to the user's access)
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/modules', [ReportController::class, 'modules'])->name('reports.modules');
+    Route::get('reports/workload', [ReportController::class, 'workload'])->name('reports.workload');
+    Route::get('reports/products/{product}', [ReportController::class, 'product'])->name('reports.product');
 
     // Reference registries (APIs, integrations, databases, Figma, environments, deployments, releases)
     Route::prefix('registry/{type}')->whereIn('type', Registries::types())->name('registries.')->group(function () {

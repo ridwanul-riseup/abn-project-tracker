@@ -30,7 +30,7 @@ class OptionController extends Controller
             'groups' => OptionGroup::query()->withCount([
                 'options',
                 'options as active_count' => fn ($q) => $q->where('is_active', true),
-            ])->orderBy('name')->get(),
+            ])->orderBy('name')->paginate($this->perPage()),
         ]);
     }
 
@@ -38,12 +38,12 @@ class OptionController extends Controller
     {
         Gate::authorize('settings.manage');
 
-        $options = $group->options()->get();
+        $options = $group->options()->paginate($this->perPage());
 
         return view('admin.options.show', [
             'group' => $group,
             'options' => $options,
-            'usage' => $options->mapWithKeys(fn (Option $o) => [$o->id => $this->options()->usage($o)]),
+            'usage' => $options->getCollection()->mapWithKeys(fn (Option $o) => [$o->id => $this->options()->usage($o)]),
             'usedIn' => OptionCatalog::usage($group->key),
         ]);
     }

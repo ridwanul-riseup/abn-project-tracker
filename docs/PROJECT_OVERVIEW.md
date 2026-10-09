@@ -26,6 +26,7 @@ Product details come only from the workbook. Anything missing or ambiguous was i
 | Area | Summary |
 | --- | --- |
 | Dashboard | Visible products with repository/module counts, my open tasks, blocked tasks, recent documents, recent activity (filtered by permission). |
+| Reports | Bird's-eye task progress: portfolio per product, each product down to module level, all modules across products, and workload per assignee. Counts per configured status (backlog, to do, in progress, in review, testing, done …), plus blocked, overdue, due in 7 days, unassigned and % closed. Every number opens the matching task list. |
 | Inventory | Products, applications, repositories, modules and component dependencies, with archive/restore. |
 | Reference registries | API, integration, database, Figma, environment, deployment and release references. No secrets. |
 | Documentation | Markdown stored as real `.md` files under `docs/`, metadata in MySQL, templates, preview, revisions, conflict detection. |

@@ -96,20 +96,20 @@ class RepositoryController extends Controller
         return view('repositories.show', [
             'repository' => $repository->load(['product', 'application', 'layer', 'status', 'deploymentTarget', 'databaseReference', 'environments']),
             'canSeeSensitive' => Gate::allows('viewSensitive', $repository),
-            'dependsOn' => (clone $visibleDependencies)->where('source_type', 'repository')->where('source_id', $repository->id)->get(),
-            'usedBy' => (clone $visibleDependencies)->where('target_type', 'repository')->where('target_id', $repository->id)->get(),
-            'modules' => Module::query()->visibleTo($user)
+            'dependsOn' => $this->paginateList((clone $visibleDependencies)->where('source_type', 'repository')->where('source_id', $repository->id)->orderBy('code'), 'depends_on'),
+            'usedBy' => $this->paginateList((clone $visibleDependencies)->where('target_type', 'repository')->where('target_id', $repository->id)->orderBy('code'), 'used_by'),
+            'modules' => $this->paginateList(Module::query()->visibleTo($user)
                 ->where(fn ($q) => $q->where('primary_repository_id', $repository->id)
                     ->orWhereHas('relatedRepositories', fn ($r) => $r->where('repositories.id', $repository->id)))
-                ->orderBy('code')->get(),
-            'documents' => Document::query()->visibleTo($user)->notArchived()->where('repository_id', $repository->id)->orderBy('title')->get(),
+                ->orderBy('code'), 'modules'),
+            'documents' => $this->paginateList(Document::query()->visibleTo($user)->notArchived()->where('repository_id', $repository->id)->orderBy('title'), 'documents'),
             'apis' => ApiReference::query()->visibleTo($user)->where('repository_id', $repository->id)->get(),
             'figma' => FigmaReference::query()->visibleTo($user)->where('repository_id', $repository->id)->get(),
-            'deployments' => Deployment::query()->visibleTo($user)->where('repository_id', $repository->id)->with(['environment', 'status'])->get(),
+            'deployments' => $this->paginateList(Deployment::query()->visibleTo($user)->where('repository_id', $repository->id)->with(['environment', 'status'])->latest('id'), 'deployments'),
             'integrations' => Integration::query()->visibleTo($user)->whereHas('repositories', fn ($q) => $q->where('repositories.id', $repository->id))->get(),
-            'siblings' => Repository::query()->visibleTo($user)->whereKeyNot($repository->id)
+            'siblings' => $this->paginateList(Repository::query()->visibleTo($user)->whereKeyNot($repository->id)
                 ->when($repository->application_id, fn ($q) => $q->where('application_id', $repository->application_id), fn ($q) => $q->whereRaw('1 = 0'))
-                ->get(),
+                ->orderBy('code'), 'siblings'),
             'openTasks' => Task::query()->visibleTo($user)->where('repository_id', $repository->id)
                 ->whereIn('status_id', $this->options()->statusIdsWithBehavior(['open', 'blocked']))->count(),
             'clarifications' => $this->clarificationsFor($repository),

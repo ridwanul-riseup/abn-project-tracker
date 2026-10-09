@@ -11,6 +11,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Rules\NoSecrets;
 use App\Support\Audit;
+use App\Support\Reports\TaskReport;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +36,18 @@ class TaskController extends Controller
         if ($request->boolean('mine')) {
             $query->where('assignee_id', $user->id);
         }
+        if ($request->boolean('unassigned')) {
+            $query->whereNull('assignee_id');
+        }
+        if ($request->boolean('no_module')) {
+            $query->whereNull('module_id');
+        }
+        $today = now()->toDateString();
+        match ($request->string('due')->toString()) {
+            'overdue' => $query->where('due_date', '<', $today),
+            'soon' => $query->whereBetween('due_date', [$today, now()->addDays(TaskReport::DUE_SOON_DAYS)->toDateString()]),
+            default => null,
+        };
 
         $state = $request->string('state', 'open')->toString();
         match ($state) {
@@ -60,6 +73,8 @@ class TaskController extends Controller
             'products' => $this->productChoices(),
             'assignees' => User::query()->active()->orderBy('name')->pluck('name', 'id'),
             'state' => $state,
+            'filterModule' => Module::query()->visibleTo($user)->find($request->integer('module_id') ?: null),
+            'filterRepository' => Repository::query()->visibleTo($user)->find($request->integer('repository_id') ?: null),
             'canCreate' => Gate::allows('tasks.create'),
         ]);
     }
@@ -120,8 +135,8 @@ class TaskController extends Controller
 
         return view('tasks.show', [
             'task' => $task,
-            'comments' => $task->comments()->with('user')->oldest()->get(),
-            'documents' => $task->documents()->visibleTo($this->user())->get(),
+            'comments' => $this->paginateList($task->comments()->with('user'), 'comments'),
+            'documents' => $this->paginateList($task->documents()->visibleTo($this->user())->orderBy('title'), 'documents'),
             'hiddenDocuments' => $task->documents()->count() - $task->documents()->visibleTo($this->user())->count(),
         ]);
     }
