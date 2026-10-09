@@ -19,7 +19,7 @@
                             <x-form.textarea :name="$name" :label="$field['label']" :value="$record->getAttribute($name)" :required="$required" :help="$help" :col="$col" />
                             @break
                         @case('option')
-                            <x-form.option-select :group="$field['group']" :name="$name" :label="$field['label']" :selected="$record->getAttribute($name)" :required="$required" :help="$help" :col="$col" />
+                            <x-form.option-select :group="$field['group']" :name="$name" :label="$field['label']" :selected="$record->getAttribute($name)" :use-default="! $record->exists" :required="$required" :help="$help" :col="$col" />
                             @break
                         @case('product')
                         @case('application')

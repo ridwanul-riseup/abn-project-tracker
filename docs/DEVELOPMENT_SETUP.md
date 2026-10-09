@@ -55,17 +55,23 @@ php artisan migrate --seed
 The default seeders create:
 
 1. roles and capabilities,
-2. global dropdown options,
-3. the initial Super Admin (from `HUB_ADMIN_*`; password printed once if generated),
-4. the workbook inventory (`database/seeders/data/abn_workbook.json`) with Needs Clarification items,
-5. document records for the Markdown files shipped in `docs/`.
+2. global dropdown options (with initial defaults: task status *Backlog*, type *Feature*,
+   priority *Medium*),
+3. the initial document templates (only if the `document_templates` table is empty),
+4. the initial Super Admin (from `HUB_ADMIN_*`; password printed once if generated),
+5. the workbook inventory (`database/seeders/data/abn_workbook.json`) with Needs Clarification items,
+6. document records for the Markdown files shipped in `docs/`,
+7. demo users (`DemoUserSeeder`, see below; skipped in production).
 
 The seeders are idempotent — running `php artisan db:seed` again does not duplicate data.
 **But** the workbook seeder resets workbook-sourced fields (name, description, owner, status, …)
 of records whose code comes from the workbook. Once the team edits inventory in the hub, do not
 re-run `WorkbookSeeder` against that database.
 
-Optional, **local only**: one demo user per role with sample access (refuses to run in production):
+**Local only**: `DemoUserSeeder` creates one demo user per role (`*@abhub.local`) with sample access.
+It is part of the default `db:seed` run and refuses to run when `APP_ENV=production`. All demo
+users currently share the password `password`. Never seed a shared or internet-facing
+non-production environment with it. To run it on its own:
 
 ```bash
 php artisan db:seed --class=DemoUserSeeder

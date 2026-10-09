@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AccessRuleController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\DocumentTemplateController;
 use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
@@ -108,14 +109,27 @@ Route::middleware('auth')->group(function () {
 
         Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
         Route::put('roles', [RoleController::class, 'update'])->name('roles.update');
+        Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
+        Route::put('roles/{role}', [RoleController::class, 'updateDetails'])->name('roles.details');
+        Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
         Route::get('settings', [OptionController::class, 'index'])->name('options.index');
         Route::get('settings/{group:key}', [OptionController::class, 'show'])->name('options.show');
         Route::post('settings/{group:key}', [OptionController::class, 'store'])->name('options.store');
         Route::put('options/{option}', [OptionController::class, 'update'])->name('options.update');
         Route::post('options/{option}/toggle', [OptionController::class, 'toggle'])->name('options.toggle');
+        Route::post('options/{option}/default', [OptionController::class, 'setDefault'])->name('options.default');
         Route::post('options/{option}/move/{direction}', [OptionController::class, 'move'])->whereIn('direction', ['up', 'down'])->name('options.move');
         Route::delete('options/{option}', [OptionController::class, 'destroy'])->name('options.destroy');
+
+        Route::get('templates', [DocumentTemplateController::class, 'index'])->name('templates.index');
+        Route::get('templates/create', [DocumentTemplateController::class, 'create'])->name('templates.create');
+        Route::post('templates', [DocumentTemplateController::class, 'store'])->name('templates.store');
+        Route::get('templates/{template}/edit', [DocumentTemplateController::class, 'edit'])->name('templates.edit');
+        Route::put('templates/{template}', [DocumentTemplateController::class, 'update'])->name('templates.update');
+        Route::post('templates/{template}/toggle', [DocumentTemplateController::class, 'toggle'])->name('templates.toggle');
+        Route::post('templates/{template}/move/{direction}', [DocumentTemplateController::class, 'move'])->whereIn('direction', ['up', 'down'])->name('templates.move');
+        Route::delete('templates/{template}', [DocumentTemplateController::class, 'destroy'])->name('templates.destroy');
 
         Route::get('activity', [ActivityLogController::class, 'index'])->name('activity.index');
     });

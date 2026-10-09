@@ -13,8 +13,8 @@
             <div class="col-md-3">
                 <select name="category_id" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All categories</option>
-                    @foreach (app(\App\Support\Options\Options::class)->for('document_category') as $o)
-                        <option value="{{ $o->id }}" @selected(request('category_id') == $o->id)>{{ $o->label }}</option>
+                    @foreach (app(\App\Support\Options\Options::class)->forFilter('document_category') as $o)
+                        <option value="{{ $o->id }}" @selected(request('category_id') == $o->id)>{{ $o->filterLabel() }}</option>
                     @endforeach
                 </select>
             </div>

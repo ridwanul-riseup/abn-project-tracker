@@ -8,8 +8,9 @@ use App\Support\Access\Capabilities;
 use Illuminate\Database\Seeder;
 
 /**
- * Creates roles and capabilities. Existing role-permission assignments are
- * only initialised for newly created roles, so admin changes are preserved.
+ * Creates roles and capabilities. Names, descriptions and role-permission
+ * assignments are only initialised for newly created roles, so admin changes
+ * are preserved (Super Admin always receives every capability).
  */
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -23,7 +24,12 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach (Capabilities::roles() as $key => [$name, $description]) {
             $role = Role::query()->firstOrNew(['key' => $key]);
             $isNew = ! $role->exists;
-            $role->fill(['name' => $name, 'description' => $description, 'is_system' => true, 'sort_order' => $sort++])->save();
+            if ($isNew) {
+                $role->fill(['name' => $name, 'description' => $description, 'sort_order' => $sort]);
+            }
+            $sort++;
+            $role->is_system = true;
+            $role->save();
 
             if ($isNew || $key === Role::SUPER_ADMIN) {
                 $role->permissions()->sync(

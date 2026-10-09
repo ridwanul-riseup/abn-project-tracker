@@ -28,6 +28,7 @@
             ['Users & Access', 'admin.users.index', 'bi-people', 'admin.users.*', Gate::check('users.manage') || Gate::check('access.manage')],
             ['Roles & Permissions', 'admin.roles.index', 'bi-shield-lock', 'admin.roles.*', Gate::check('roles.manage')],
             ['Global Settings', 'admin.options.index', 'bi-sliders', 'admin.options.*', Gate::check('settings.manage')],
+            ['Document Templates', 'admin.templates.index', 'bi-file-earmark-richtext', 'admin.templates.*', Gate::check('settings.manage')],
             ['Activity History', 'admin.activity.index', 'bi-clock-history', 'admin.activity.*', Gate::check('audit.view')],
         ],
     ];

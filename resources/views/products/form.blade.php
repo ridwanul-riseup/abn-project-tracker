@@ -14,7 +14,7 @@
             <x-form.textarea name="description" label="Description" :value="$product->description" />
             <div class="row">
                 <x-form.input name="primary_owner" label="Primary owner" :value="$product->primary_owner" col="col-md-6 mb-3" help="Team or person accountable for the product." />
-                <x-form.option-select group="product_status" name="status_id" label="Status" :selected="$product->status_id" col="col-md-6 mb-3" />
+                <x-form.option-select group="product_status" name="status_id" label="Status" :selected="$product->status_id" :use-default="! $product->exists" col="col-md-6 mb-3" />
             </div>
             <x-form.textarea name="notes" label="Notes" :value="$product->notes" rows="4" help="Do not store credentials or secrets." />
             <button class="btn btn-primary">{{ $editing ? 'Save changes' : 'Create product' }}</button>

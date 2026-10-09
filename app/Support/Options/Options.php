@@ -42,6 +42,22 @@ class Options
             ->values();
     }
 
+    /**
+     * Every option of a group for list filters: active first, then inactive
+     * ones, so records that still use a deactivated option can be found.
+     *
+     * @return Collection<int, Option>
+     */
+    public function forFilter(string $group): Collection
+    {
+        $groupId = $this->groupId($group);
+
+        return $this->all()
+            ->filter(fn (Option $o) => $o->option_group_id === $groupId)
+            ->sortBy([fn (Option $a, Option $b) => $b->is_active <=> $a->is_active, ['sort_order', 'asc'], ['label', 'asc']])
+            ->values();
+    }
+
     public function find(int|string|null $id): ?Option
     {
         return $id === null || $id === '' ? null : $this->all()->get((int) $id);
@@ -52,6 +68,37 @@ class Options
         $groupId = $this->groupId($group);
 
         return $this->all()->first(fn (Option $o) => $o->option_group_id === $groupId && $o->value === $value)?->id;
+    }
+
+    /**
+     * The administrator-chosen default of a group, if it is active (and, for
+     * task statuses, has the "open" behavior). Null when no usable default is set.
+     */
+    public function defaultId(string $group): ?int
+    {
+        $groupId = $this->groupId($group);
+
+        return $this->all()->first(fn (Option $o) => $o->option_group_id === $groupId
+            && $o->is_default
+            && $o->is_active
+            && ($group !== 'task_status' || $o->behavior === 'open'))?->id;
+    }
+
+    /**
+     * Default selection for a required field: the configured default, otherwise the first active option.
+     */
+    public function defaultOrFirstId(string $group): ?int
+    {
+        return $this->defaultId($group) ?? $this->for($group)->first()?->id;
+    }
+
+    /**
+     * Status for new tasks: the configured default, otherwise the first active "open" status.
+     */
+    public function initialTaskStatusId(): ?int
+    {
+        return $this->defaultId('task_status')
+            ?? $this->for('task_status')->first(fn (Option $o) => $o->behavior === 'open')?->id;
     }
 
     /**

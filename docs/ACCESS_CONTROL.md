@@ -35,6 +35,11 @@ These are the seeded defaults; Super Admins can change them. The seeder never ov
 existing role assignments except for Super Admin, which always has every capability.
 Only Super Admins can change capabilities in the *Administration* group.
 
+Users with `roles.manage` can also add **custom roles**, rename roles and edit their descriptions
+under *Administration → Roles*. A role key is fixed once created. The Super Admin role cannot be
+renamed. The six system roles cannot be deleted, and a custom role can only be deleted when no
+user has it. Every role change is audited, and re-running the seeder keeps renamed roles.
+
 ## Scoped access rules
 
 A rule is `(user, scope, permission)`:

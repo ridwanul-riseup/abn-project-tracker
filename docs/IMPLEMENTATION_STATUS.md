@@ -15,10 +15,10 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | C | Applications | Done | `ApplicationController`, `resources/views/applications/*` | — | — |
 | D | Repositories (filters, sensitive notes, environments, modules, docs, tasks) | Done | `RepositoryController`, `resources/views/repositories/*` | No Git host API integration (by design) | — |
 | E | Modules (primary + linked repositories) | Done | `ModuleController`, `resources/views/modules/*` | — | — |
-| F | Markdown documentation (real `.md` files, templates, preview, revisions, conflict detection, link rewriting, Git links) | Done | `DocumentController`, `app/Support/Docs/*`, `resources/views/docs/*`, `resources/doc-templates/*` | Path fixed after creation; metadata-only revisions; no Git operations; no UI to register files added via Git | Add "scan and register" admin screen |
+| F | Markdown documentation (real `.md` files, templates, preview, revisions, conflict detection, link rewriting, Git links) | Done | `DocumentController`, `app/Support/Docs/*`, `resources/views/docs/*`, `Admin/DocumentTemplateController` (templates in DB; `resources/doc-templates/*` are seed only) | Path fixed after creation; metadata-only revisions; no Git operations; no UI to register files added via Git | Add "scan and register" admin screen |
 | G | Tasks (keys, filters, assignment, progress, comments, document links, blockers) | Done | `TaskController`, `TaskCommentController`, `TaskPolicy`, `resources/views/tasks/*` | No notifications, sub-tasks or issue-tracker sync | Decide whether email notifications are wanted |
 | H | Users and scoped access (read/write/deny, deny overrides, lock-out prevention, history, backend enforcement, no IDOR) | Done | `Admin/UserController`, `Admin/AccessRuleController`, `Admin/RoleController`, `AccessService`, policies, `EnsureUserIsActive` | No teams/groups; access managers see all resource names; visibility computed in PHP | Team-based rules if the user count grows |
-| I | Global options settings | Done | `Admin/OptionController`, `OptionCatalog`, `Options`, `resources/views/admin/options/*` | New option *groups* require code (`OptionCatalog`) | — |
+| I | Global options settings (add, rename, reorder, deactivate, delete unused, per-group default; document templates; custom roles) | Done | `Admin/OptionController`, `Admin/DocumentTemplateController`, `Admin/RoleController`, `OptionCatalog`, `Options`, `resources/views/admin/*` | New option *groups* require code (`OptionCatalog`); see `CONFIGURATION_AUDIT.md` for static items | — |
 | J | Dependencies (repository/module/API/database/integration, criticality, failure impact) | Done | `DependencyController`, `ComponentDependency`, `resources/views/dependencies/*` | No graph visualisation | Optional dependency graph view |
 | K | API / database / Figma / environment / deployment / release / integration references (no secrets) | Done | `RegistryController`, `app/Support/Registries.php`, `resources/views/registries/*` | Deployment records are manual; no CI/CD integration | — |
 | L | Audit log | Done | `Audit`, `Auditable`, `ActivityFeed`, `Admin/ActivityLogController` | Logins not audited; no retention policy | Define retention period |
@@ -49,7 +49,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | 2 | Access control | Done | `tests/Feature/AccessControlTest.php` |
 | 3 | Documentation | Done | `tests/Feature/DocumentationTest.php` |
 | 4 | Development tracking | Done | `tests/Feature/TaskTrackingTest.php` |
-| 5 | Global settings | Done | `tests/Feature/GlobalSettingsTest.php` |
+| 5 | Global settings | Done | `tests/Feature/GlobalSettingsTest.php`, `tests/Feature/DynamicConfigurationTest.php` |
 | 6 | Project inventory | Done | `tests/Feature/InventoryTest.php` |
 | 7 | Installation (clone, configure, migrate, seed, start) | Done (manual) | No automated test. Migrate + seed verified locally; CI runs `composer setup` (install, key, migrate, asset build). |
 
@@ -61,6 +61,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | `docs/PROJECT_OVERVIEW.md`, `ARCHITECTURE.md`, `DATABASE_SCHEMA.md`, `ACCESS_CONTROL.md` | Done |
 | `docs/DEVELOPMENT_SETUP.md`, `DEVELOPMENT_WORKFLOW.md`, `MARKDOWN_DOCUMENTATION_GUIDE.md` | Done |
 | `docs/DEPLOYMENT.md`, `SECURITY.md`, `TESTING.md`, `KNOWN_LIMITATIONS.md`, `IMPLEMENTATION_STATUS.md` | Done |
+| `docs/CONFIGURATION_AUDIT.md` (dynamic configuration audit) | Done |
 | Ecosystem docs from the workbook (`docs/README.md`, `glossary.md`, product overviews, AutonOS, SHR authentication, integrations, databases, environments, decisions) | Partial — written only from workbook facts; gaps are marked **Needs Clarification** |
 
 ## Open items needing clarification (not implementable without input)
@@ -76,14 +77,15 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 Most recent run, executed on 2026-10-09 with `php artisan test`, `vendor/bin/phpstan analyse`
 and `vendor/bin/pint --test` against MySQL 8.4 (`ab_project_hub_test`):
 
-- Pest: **77 passed, 0 failed** (524 assertions)
+- Pest: **91 passed, 0 failed** (636 assertions)
 - PHPStan (level 7): **0 errors**
 - Pint: **passed**
 - `npm run build`: succeeded
 
 Installation check (workflow 7, manual): `php artisan migrate:fresh --seed --force` on an empty
 database created 4 products, 9 applications, 16 repositories, 17 modules, 33 clarification items,
-109 options, 1 Super Admin and registered all 24 shipped documents; `php artisan serve` then
+109 options (3 initial defaults), 8 document templates, 1 Super Admin and registered all
+shipped documents; `php artisan serve` then
 answered `/login` (200), `/` (302 to login for guests) and `/up` (200).
 
 The CI workflow (`.github/workflows/tests.yml`, MySQL 8.4 service) has been written but has not

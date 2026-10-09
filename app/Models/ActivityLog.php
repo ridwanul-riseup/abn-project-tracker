@@ -23,7 +23,7 @@ class ActivityLog extends Model
     public const UPDATED_AT = null;
 
     /** Subject types whose activity is only shown on the audit page. */
-    public const ADMIN_ONLY_TYPES = ['user', 'access_rule', 'option', 'role'];
+    public const ADMIN_ONLY_TYPES = ['user', 'access_rule', 'option', 'role', 'document_template'];
 
     protected $guarded = ['id'];
 

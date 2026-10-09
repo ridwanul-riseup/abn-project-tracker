@@ -10,6 +10,7 @@ use App\Models\ComponentDependency;
 use App\Models\DatabaseReference;
 use App\Models\Deployment;
 use App\Models\Document;
+use App\Models\DocumentTemplate;
 use App\Models\Environment;
 use App\Models\FigmaReference;
 use App\Models\Integration;
@@ -109,6 +110,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'role' => Role::class,
             'option' => Option::class,
+            'document_template' => DocumentTemplate::class,
             'access_rule' => AccessRule::class,
         ]);
     }

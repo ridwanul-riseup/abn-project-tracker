@@ -20,13 +20,13 @@
             <div class="col-md-2">
                 <select name="layer" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All layers</option>
-                    @foreach ($opts->for('repository_layer') as $o)<option value="{{ $o->id }}" @selected(request('layer') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('repository_layer') as $o)<option value="{{ $o->id }}" @selected(request('layer') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-2">
                 <select name="status" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All statuses</option>
-                    @foreach ($opts->for('repository_status') as $o)<option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('repository_status') as $o)<option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-auto form-check ms-2">

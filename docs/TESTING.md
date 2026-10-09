@@ -20,7 +20,9 @@ Other test settings (from `phpunit.xml` / `tests/TestCase.php`):
 - `HUB_DOCS_PATH=storage/framework/testing/docs` — a scratch docs directory, recreated empty
   before each test. Tests never touch the real `docs/`.
 - `HUB_CSP_ENABLED=true` — pages are rendered with the strict CSP header.
-- Roles/capabilities and global options are seeded before each test; Vite is disabled.
+- Roles/capabilities, global options and document templates are seeded before each test; Vite is
+  disabled.
+- There is only a `Feature` suite (`tests/Feature`); there are no unit tests.
 
 Helpers in `tests/Pest.php`: `userWithRole()`, `superAdmin()`, `grantAccess()`, `makeProduct()`,
 `makeRepository()`, `makeModule()`, `makeDocument()`, `optionId()`, `docsRoot()`.
@@ -35,6 +37,7 @@ Helpers in `tests/Pest.php`: `userWithRole()`, `superAdmin()`, `grantAccess()`, 
 | 4. Development tracking | `tests/Feature/TaskTrackingTest.php` | Create task linked to product/repository/module/document and assign, assignee must have access, cross-product links rejected, assignee can update progress but not edit, filters, QA can report bugs but not assign. |
 | 5. Global settings | `tests/Feature/GlobalSettingsTest.php` | New option appears in forms, deactivating an in-use option keeps records, values immutable, last open task status protected, delete unused + reorder, non-admins forbidden. |
 | 6. Project inventory | `tests/Feature/InventoryTest.php` | Workbook seed produces products/applications/repositories/modules, AutonOS distinct from ABOS ERP, repository browse/filter/search, dependencies, registry references, Needs Clarification instead of invented values, idempotent seeding, registry write scope, secrets rejected / ordinary text accepted, clarifications filtered by scope. |
+| Dynamic configuration | `tests/Feature/DynamicConfigurationTest.php` | New/renamed/reordered options reflected in forms; defaults preselected on create only and used for new tasks with fallback when deactivated; only active (and open, for task status) options can be defaults; inactive / wrong-group / unknown IDs rejected on submit; document template CRUD drives *New document* (inactive hidden, secrets rejected, title-only fallback, category in use cannot be deleted); custom role create/rename/delete rules; inactive options still usable as list filters; unauthorized users get 403 on every configuration route; changes apply on the next request. |
 | Smoke | `tests/Feature/PageSmokeTest.php` | Every screen renders for a Super Admin and for a restricted viewer without errors. |
 | 7. Installation | — | **Not automated.** Verified manually: `composer install`, `.env`, `migrate --seed`, `serve`. CI exercises `composer setup` (install, key, migrate, build) on every push. |
 

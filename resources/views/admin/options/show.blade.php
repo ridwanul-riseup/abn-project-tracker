@@ -4,11 +4,12 @@
     @error('option')<div class="alert alert-danger py-2">{{ $message }}</div>@enderror
 
     <p class="small text-muted">Used in: @foreach ($usedIn as [$table, $column, $label]){{ $label }}@if (! $loop->last), @endif @endforeach.
-        The stable key is fixed once created. Options in use cannot be deleted — deactivate them instead.</p>
+        The stable key is fixed once created. Options in use cannot be deleted — deactivate them instead.
+        The <i class="bi bi-star-fill text-warning"></i> default is preselected on forms for new records; changes apply on the next page load.</p>
 
     <div class="card mb-3"><div class="table-responsive">
         <table class="table table-sm mb-0 align-middle">
-            <thead class="table-light"><tr><th>Order</th><th>Label / description</th><th>Key</th><th>Color</th>@if ($group->supportsBehavior())<th>Behavior</th>@endif<th>Where used</th><th>Status</th><th></th></tr></thead>
+            <thead class="table-light"><tr><th>Order</th><th>Label / description</th><th>Key</th><th>Color</th>@if ($group->supportsBehavior())<th>Behavior</th>@endif<th>Where used</th><th>Status</th><th>Default</th><th></th></tr></thead>
             <tbody>
             @foreach ($options as $option)
                 @php $formId = 'opt-'.$option->id; $count = array_sum(array_column($usage[$option->id], 'count')); @endphp
@@ -43,6 +44,13 @@
                         @if ($count === 0)<span class="text-muted">Unused</span>@endif
                     </td>
                     <td>@if ($option->is_active)<span class="badge bg-success">Active</span>@else<span class="badge bg-secondary">Inactive</span>@endif</td>
+                    <td class="text-nowrap">
+                        @if ($option->is_default)
+                            <form method="POST" action="{{ route('admin.options.default', $option) }}" class="d-inline">@csrf<button class="btn btn-sm btn-warning" title="Clear default"><i class="bi bi-star-fill"></i> Default</button></form>
+                        @elseif ($option->is_active && (! $group->supportsBehavior() || $option->behavior === 'open'))
+                            <form method="POST" action="{{ route('admin.options.default', $option) }}" class="d-inline">@csrf<button class="btn btn-sm btn-outline-secondary" title="Preselect this option for new records"><i class="bi bi-star"></i></button></form>
+                        @endif
+                    </td>
                     <td class="text-nowrap text-end">
                         <form id="{{ $formId }}" method="POST" action="{{ route('admin.options.update', $option) }}" class="d-inline">@csrf @method('PUT')<button class="btn btn-sm btn-outline-primary">Save</button></form>
                         <form method="POST" action="{{ route('admin.options.toggle', $option) }}" class="d-inline">@csrf<button class="btn btn-sm btn-outline-secondary">{{ $option->is_active ? 'Deactivate' : 'Activate' }}</button></form>

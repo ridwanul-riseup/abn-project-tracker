@@ -30,7 +30,7 @@
                 <div class="col-md-2">
                     <select name="{{ $name }}" class="form-select form-select-sm" data-autosubmit>
                         <option value="">{{ $placeholder }}</option>
-                        @foreach ($opts->for($group) as $o)<option value="{{ $o->id }}" @selected(request($name) == $o->id)>{{ $o->label }}</option>@endforeach
+                        @foreach ($opts->forFilter($group) as $o)<option value="{{ $o->id }}" @selected(request($name) == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                     </select>
                 </div>
             @endforeach

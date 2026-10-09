@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $behavior
  * @property int $sort_order
  * @property bool $is_active
+ * @property bool $is_default
  * @property-read OptionGroup $group
  */
 class Option extends Model
@@ -30,7 +31,7 @@ class Option extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'sort_order' => 'integer'];
+        return ['is_active' => 'boolean', 'is_default' => 'boolean', 'sort_order' => 'integer'];
     }
 
     protected static function booted(): void
@@ -46,6 +47,11 @@ class Option extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(OptionGroup::class, 'option_group_id');
+    }
+
+    public function filterLabel(): string
+    {
+        return $this->label.($this->is_active ? '' : ' (inactive)');
     }
 
     public function auditLabel(): string

@@ -20,7 +20,7 @@
                     <select name="{{ $filter }}" class="form-select form-select-sm" data-autosubmit>
                         @if ($filter === 'status_id')
                             <option value="">All statuses</option>
-                            @foreach ($opts->for($statusField['group']) as $o)<option value="{{ $o->id }}" @selected(request($filter) == $o->id)>{{ $o->label }}</option>@endforeach
+                            @foreach ($opts->forFilter($statusField['group']) as $o)<option value="{{ $o->id }}" @selected(request($filter) == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                         @elseif ($filter === 'repository_id')
                             <option value="">All repositories</option>
                             @foreach ($repositories as $id => $label)<option value="{{ $id }}" @selected(request($filter) == $id)>{{ $label }}</option>@endforeach

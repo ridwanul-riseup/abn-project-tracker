@@ -10,6 +10,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -77,5 +79,84 @@ class RoleController extends Controller
         $this->access()->flush();
 
         return back()->with('status', $changed ? "Updated {$changed} role(s)." : 'No changes.');
+    }
+
+    /**
+     * Create a custom role. It starts without capabilities.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        Gate::authorize('roles.manage');
+
+        $request->merge(['key' => Str::of($request->input('key') ?: $request->input('name', ''))->lower()->slug('_')->toString()]);
+        $validated = $request->validate($this->detailRules(null) + [
+            'key' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9][a-z0-9_]*$/', Rule::unique('roles', 'key')],
+        ]);
+
+        $role = Role::query()->create([
+            'key' => $validated['key'],
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'is_system' => false,
+            'sort_order' => (int) Role::query()->max('sort_order') + 1,
+        ]);
+        Audit::record('role.created', $role, ['after' => $role->only(['key', 'name', 'description'])]);
+
+        return back()->with('status', "Role “{$role->name}” created. Tick its capabilities below and save.");
+    }
+
+    /**
+     * Rename a role or change its description. The key and the Super Admin role are fixed.
+     */
+    public function updateDetails(Request $request, Role $role): RedirectResponse
+    {
+        Gate::authorize('roles.manage');
+        abort_if($role->isSuperAdmin(), 403, 'The Super Admin role cannot be changed.');
+
+        $validated = $request->validate($this->detailRules($role));
+        $before = $role->only(['name', 'description']);
+        $role->update(['name' => $validated['name'], 'description' => $validated['description'] ?? null]);
+
+        if ($role->wasChanged()) {
+            Audit::record('role.updated', $role, ['before' => $before, 'after' => $role->only(['name', 'description'])]);
+        }
+
+        return back()->with('status', "Role “{$role->name}” saved.");
+    }
+
+    /**
+     * Delete a custom role that no user has. System roles cannot be deleted.
+     */
+    public function destroy(Role $role): RedirectResponse
+    {
+        Gate::authorize('roles.manage');
+
+        if ($role->is_system) {
+            return back()->with('error', 'System roles cannot be deleted.');
+        }
+        $users = $role->users()->count();
+        if ($users > 0) {
+            return back()->with('error', "“{$role->name}” is assigned to {$users} user(s). Reassign them first.");
+        }
+
+        DB::transaction(function () use ($role) {
+            Audit::record('role.deleted', $role, ['before' => $role->only(['key', 'name', 'description'])]);
+            $role->permissions()->detach();
+            $role->delete();
+        });
+        $this->access()->flush();
+
+        return back()->with('status', "Role “{$role->name}” deleted.");
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function detailRules(?Role $role): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:100', Rule::unique('roles', 'name')->ignore($role?->id)],
+            'description' => ['nullable', 'string', 'max:500'],
+        ];
     }
 }

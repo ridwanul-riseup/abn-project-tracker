@@ -76,8 +76,15 @@ Unreadable records return **404**, not 403, so their existence is not revealed. 
 
 Dropdown values (statuses, priorities, types, layers, categories …) are rows in `options`, grouped
 by `option_groups`, referenced by foreign key. Values are immutable once created; labels, colours,
-order and active state are editable. `task_status` options carry a `behavior`
-(`open`/`blocked`/`closed`) used by dashboards and filters.
+order, default and active state are editable. `task_status` options carry a `behavior`
+(`open`/`blocked`/`closed`) used by dashboards and filters. Forms list only active options and
+validation (`Options::rule`) rejects anything else. List filters also show inactive options
+(marked "(inactive)") so historical records stay findable. The `Options` service caches per
+request only, so admin changes apply on the next request.
+
+Document templates (`document_templates`) and custom roles are also managed in the admin panel.
+See [CONFIGURATION_AUDIT.md](CONFIGURATION_AUDIT.md) for what is configurable and what stays
+static by design.
 
 ## Front end
 

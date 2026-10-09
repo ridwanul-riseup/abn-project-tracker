@@ -24,6 +24,7 @@ class ActivityFeed
         'access_rule' => 'access.manage',
         'role' => 'roles.manage',
         'option' => 'settings.manage',
+        'document_template' => 'settings.manage',
     ];
 
     public function __construct(private readonly AccessService $access) {}

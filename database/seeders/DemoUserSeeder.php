@@ -25,7 +25,7 @@ class DemoUserSeeder extends Seeder
             return;
         }
 
-        $password = 'password';//Str::password(16, symbols: false);
+        $password = 'password'; // Str::password(16, symbols: false);
         $ott = Product::query()->where('code', 'OTT')->first();
         $shr = Product::query()->where('code', 'SHR')->first();
 

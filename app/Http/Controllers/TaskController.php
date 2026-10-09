@@ -72,8 +72,9 @@ class TaskController extends Controller
             'product_id' => $request->integer('product_id') ?: null,
             'repository_id' => $request->integer('repository_id') ?: null,
             'module_id' => $request->integer('module_id') ?: null,
-            'type_id' => $this->options()->for('task_type')->first()?->id,
-            'priority_id' => $this->options()->idFor('priority', 'medium'),
+            'type_id' => $this->options()->defaultOrFirstId('task_type'),
+            'status_id' => $this->options()->initialTaskStatusId(),
+            'priority_id' => $this->options()->defaultOrFirstId('priority'),
         ]);
         if (! $task->product_id && $task->module_id) {
             $task->product_id = Module::query()->whereKey($task->module_id)->value('product_id');
@@ -102,7 +103,7 @@ class TaskController extends Controller
                 'number' => $number,
                 'key' => $product->code.'-'.$number,
                 'reporter_id' => $this->user()->id,
-                'status_id' => $attributes['status_id'] ?? $this->options()->statusIdsWithBehavior(['open'])[0],
+                'status_id' => $attributes['status_id'] ?? $this->options()->initialTaskStatusId(),
             ]);
             $task->documents()->sync($documentIds);
 

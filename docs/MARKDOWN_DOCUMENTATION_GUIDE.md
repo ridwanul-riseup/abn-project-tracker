@@ -56,8 +56,15 @@ Editing always requires `docs.write` plus write access to the document's scope.
 
 ### Templates
 
-`resources/doc-templates/*.md`: blank, overview, architecture, module, api, integration, decision,
-troubleshooting. Placeholders `{{title}}`, `{{product}}` and `{{date}}` are filled in on creation.
+Templates are stored in the `document_templates` table and managed under *Administration →
+Document Templates* (requires `settings.manage`): add, edit, reorder, deactivate, delete, and
+choose a default category. Only active templates are offered on *New document*. If none are
+active, the document starts with a title heading only. Placeholders `{{title}}`, `{{product}}`
+and `{{date}}` are filled in on creation.
+
+`resources/doc-templates/*.md` are only the **initial seed** (blank, overview, architecture, module,
+api, integration, decision, troubleshooting) loaded by `DocumentTemplateSeeder` when the table is
+empty. Editing those files later has no effect on an installed hub.
 
 ## Editing in Git
 

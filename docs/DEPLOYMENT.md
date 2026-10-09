@@ -71,7 +71,8 @@ composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan migrate --force
 php artisan db:seed --class=RolesAndPermissionsSeeder --force   # new capabilities, keeps role edits
-php artisan db:seed --class=OptionSeeder --force                # new options, keeps label/order edits
+php artisan db:seed --class=OptionSeeder --force                # new options, keeps label/order/default edits
+php artisan db:seed --class=DocumentTemplateSeeder --force      # only fills an empty template table
 php artisan optimize:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
 php artisan up
 ```
@@ -79,6 +80,14 @@ php artisan up
 **Do not run the full `db:seed` again on a live database.** `WorkbookSeeder` resets
 workbook-sourced fields on workbook-coded records, overwriting edits made in the hub.
 `OptionSeeder` recreates seeded options that an administrator deleted.
+
+Migration `2026_10_09_000008` adds option defaults and sets initial ones (task status *Backlog*,
+type *Feature*, priority *Medium*) where those options exist and are active. Administrators can
+change them afterwards.
+
+`DemoUserSeeder` is part of the full `db:seed` run. It refuses to run when `APP_ENV=production`,
+but on any other environment it creates demo users with the shared password `password`. Do not
+run the full seeder on staging or other reachable servers.
 
 `DB::prohibitDestructiveCommands()` is active in production, so `migrate:fresh`, `db:wipe`, etc.
 are refused.

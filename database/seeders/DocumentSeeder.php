@@ -46,6 +46,7 @@ class DocumentSeeder extends Seeder
             ['TESTING.md', 'AB Project Hub — Testing', 'hub', null, 'all_users'],
             ['KNOWN_LIMITATIONS.md', 'AB Project Hub — Known Limitations', 'hub', null, 'all_users'],
             ['IMPLEMENTATION_STATUS.md', 'AB Project Hub — Implementation Status', 'hub', null, 'all_users'],
+            ['CONFIGURATION_AUDIT.md', 'AB Project Hub — Configuration Audit', 'hub', null, 'all_users'],
         ];
     }
 

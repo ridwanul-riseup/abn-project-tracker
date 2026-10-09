@@ -22,7 +22,11 @@ class OptionSeeder extends Seeder
                 'description' => $definition['description'],
             ]);
 
+            $hasDefault = $group->options()->where('is_default', true)->exists();
+
             foreach ($definition['values'] as $index => $value) {
+                $isDefault = ! $hasDefault && (OptionCatalog::INITIAL_DEFAULTS[$key] ?? null) === $value[0];
+
                 Option::query()->firstOrCreate(
                     ['option_group_id' => $group->id, 'value' => $value[0]],
                     [
@@ -31,6 +35,7 @@ class OptionSeeder extends Seeder
                         'behavior' => $value[3] ?? null,
                         'sort_order' => ($index + 1) * 10,
                         'is_active' => true,
+                        'is_default' => $isDefault,
                     ],
                 );
             }

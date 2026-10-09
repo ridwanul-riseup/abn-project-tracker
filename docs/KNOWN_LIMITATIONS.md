@@ -34,6 +34,8 @@ becomes a problem.
 | Free-text fields copied from the workbook (owners, API references, module labels) are not normalised into separate entities. | Some data is text, not links. | Normalise as the team confirms values (see Clarifications). |
 | No hard delete for products/applications/repositories/modules (archive only). | Mistaken records stay archived. | Database-level cleanup by an operator. |
 | No bulk import/export UI (CSV/XLSX). | Bulk changes require seeders or manual entry. | Add CSV export/import. |
+| The full `db:seed` includes `DemoUserSeeder` (shared password `password`); only `APP_ENV=production` stops it. | Seeding a staging or shared server creates guessable accounts. | Run it explicitly instead of from `DatabaseSeeder`, or use generated passwords. |
+| New option *groups*, access levels, document visibilities, registry fields and capabilities need code changes. | Only values within existing groups are admin-configurable. | See [CONFIGURATION_AUDIT.md](CONFIGURATION_AUDIT.md) for the reasons. |
 
 ## Tasks
 

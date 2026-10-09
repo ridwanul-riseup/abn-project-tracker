@@ -12,9 +12,9 @@
                 <x-form.input name="name" label="Application name" :value="$application->name" required col="col-md-5 mb-3" />
             </div>
             <div class="row">
-                <x-form.option-select group="application_type" name="application_type_id" label="Application type" :selected="$application->application_type_id" col="col-md-4 mb-3" />
-                <x-form.option-select group="application_classification" name="classification_id" label="Frontend/backend" :selected="$application->classification_id" col="col-md-4 mb-3" />
-                <x-form.option-select group="application_status" name="status_id" label="Status" :selected="$application->status_id" col="col-md-4 mb-3" />
+                <x-form.option-select group="application_type" name="application_type_id" label="Application type" :selected="$application->application_type_id" :use-default="! $application->exists" col="col-md-4 mb-3" />
+                <x-form.option-select group="application_classification" name="classification_id" label="Frontend/backend" :selected="$application->classification_id" :use-default="! $application->exists" col="col-md-4 mb-3" />
+                <x-form.option-select group="application_status" name="status_id" label="Status" :selected="$application->status_id" :use-default="! $application->exists" col="col-md-4 mb-3" />
             </div>
             <x-form.textarea name="description" label="Description" :value="$application->description" />
             <x-form.textarea name="notes" label="Notes" :value="$application->notes" />

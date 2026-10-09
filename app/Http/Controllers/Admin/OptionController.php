@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Option;
 use App\Models\OptionGroup;
+use App\Support\Audit;
 use App\Support\Options\OptionCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -79,9 +80,42 @@ class OptionController extends Controller
             $this->ensureAnotherActive($option, 'open');
         }
 
-        $option->update($attributes);
+        $clearsDefault = $option->is_default && $group->supportsBehavior() && $attributes['behavior'] !== 'open';
+        $option->update($attributes + ($clearsDefault ? ['is_default' => false] : []));
 
-        return back()->with('status', 'Option updated.');
+        return back()->with('status', $clearsDefault
+            ? 'Option updated. It is no longer the default because new tasks must start in an open status.'
+            : 'Option updated.');
+    }
+
+    /**
+     * Make an option the group's default selection for new records, or clear it.
+     */
+    public function setDefault(Option $option): RedirectResponse
+    {
+        Gate::authorize('settings.manage');
+
+        if ($option->is_default) {
+            $option->update(['is_default' => false]);
+
+            return back()->with('status', "“{$option->label}” is no longer the default.");
+        }
+
+        if (! $option->is_active) {
+            throw ValidationException::withMessages(['option' => 'Only active options can be the default.']);
+        }
+        if ($option->group->supportsBehavior() && $option->behavior !== 'open') {
+            throw ValidationException::withMessages(['option' => 'The default task status must have the “open” behavior.']);
+        }
+
+        DB::transaction(function () use ($option) {
+            Option::query()->where('option_group_id', $option->option_group_id)->where('is_default', true)
+                ->whereKeyNot($option->id)->lockForUpdate()->get()
+                ->each(fn (Option $previous) => $previous->update(['is_default' => false]));
+            $option->update(['is_default' => true]);
+        });
+
+        return back()->with('status', "“{$option->label}” is now the default for new records.");
     }
 
     public function toggle(Option $option): RedirectResponse
@@ -95,7 +129,7 @@ class OptionController extends Controller
             }
         }
 
-        $option->update(['is_active' => ! $option->is_active]);
+        $option->update($option->is_active ? ['is_active' => false, 'is_default' => false] : ['is_active' => true]);
 
         return back()->with('status', $option->is_active
             ? 'Option activated.'
@@ -106,14 +140,14 @@ class OptionController extends Controller
     {
         Gate::authorize('settings.manage');
 
-        DB::transaction(function () use ($option, $direction) {
+        $moved = DB::transaction(function () use ($option, $direction) {
             $siblings = Option::query()->where('option_group_id', $option->option_group_id)
                 ->orderBy('sort_order')->orderBy('label')->lockForUpdate()->get()->values();
 
             $index = $siblings->search(fn (Option $o) => $o->id === $option->id);
             $swap = $direction === 'up' ? $index - 1 : $index + 1;
             if ($index === false || ! isset($siblings[$swap])) {
-                return;
+                return false;
             }
 
             $ordered = $siblings->all();
@@ -124,8 +158,14 @@ class OptionController extends Controller
                     $item->saveQuietly();
                 }
             }
+
+            return true;
         });
         $this->options()->flush();
+
+        if ($moved) {
+            Audit::record('option.reordered', $option, ['direction' => $direction]);
+        }
 
         return back();
     }

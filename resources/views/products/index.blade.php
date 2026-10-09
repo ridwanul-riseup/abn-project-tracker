@@ -13,8 +13,8 @@
             <div class="col-md-3">
                 <select name="status" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All statuses</option>
-                    @foreach (app(\App\Support\Options\Options::class)->for('product_status') as $o)
-                        <option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->label }}</option>
+                    @foreach (app(\App\Support\Options\Options::class)->forFilter('product_status') as $o)
+                        <option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->filterLabel() }}</option>
                     @endforeach
                 </select>
             </div>

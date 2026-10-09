@@ -20,13 +20,13 @@
             <div class="col-md-2">
                 <select name="status" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All statuses</option>
-                    @foreach ($opts->for('module_status') as $o)<option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('module_status') as $o)<option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-2">
                 <select name="priority" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All priorities</option>
-                    @foreach ($opts->for('priority') as $o)<option value="{{ $o->id }}" @selected(request('priority') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('priority') as $o)<option value="{{ $o->id }}" @selected(request('priority') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-auto"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>

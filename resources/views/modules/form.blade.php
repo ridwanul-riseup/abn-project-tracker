@@ -9,8 +9,8 @@
             <div class="row">
                 <x-form.input name="code" label="Module ID" :value="$module->code" required col="col-md-3 mb-3" help="e.g. OTT-SUB" />
                 <x-form.input name="name" label="Module name" :value="$module->name" required col="col-md-5 mb-3" />
-                <x-form.option-select group="module_status" name="status_id" label="Status" :selected="$module->status_id" col="col-md-2 mb-3" />
-                <x-form.option-select group="priority" name="priority_id" label="Priority" :selected="$module->priority_id" col="col-md-2 mb-3" />
+                <x-form.option-select group="module_status" name="status_id" label="Status" :selected="$module->status_id" :use-default="! $module->exists" col="col-md-2 mb-3" />
+                <x-form.option-select group="priority" name="priority_id" label="Priority" :selected="$module->priority_id" :use-default="! $module->exists" col="col-md-2 mb-3" />
             </div>
             <div class="row">
                 <x-form.select name="product_id" label="Product" :options="$products" :selected="$module->product_id" required col="col-md-4 mb-3" placeholder="— Select product —" />

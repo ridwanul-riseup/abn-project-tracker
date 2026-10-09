@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\DocumentTemplate;
 use App\Models\Module;
 use App\Models\Product;
 use App\Models\Repository;
@@ -24,17 +25,6 @@ use Illuminate\View\View;
 
 class DocumentController extends Controller
 {
-    public const TEMPLATES = [
-        'blank' => 'Blank document',
-        'overview' => 'Product / component overview',
-        'architecture' => 'Architecture',
-        'module' => 'Module specification',
-        'api' => 'API reference',
-        'integration' => 'Integration',
-        'decision' => 'Architecture decision record (ADR)',
-        'troubleshooting' => 'Troubleshooting guide',
-    ];
-
     public function __construct(
         private readonly DocumentService $documents,
         private readonly MarkdownRenderer $renderer,
@@ -94,16 +84,19 @@ class DocumentController extends Controller
         ]);
         $this->fillProductFromPlacement($document);
 
-        $template = array_key_exists($request->string('template')->toString(), self::TEMPLATES)
-            ? $request->string('template')->toString()
-            : 'blank';
+        $templates = DocumentTemplate::query()->active()->ordered()->get();
+        $template = $templates->firstWhere('key', $request->string('template')->toString()) ?? $templates->first();
 
         if ($category = $request->string('category')->toString()) {
             $document->category_id = $this->options()->idFor('document_category', $category);
         }
+        if (! $document->category_id && $template?->category_id && $this->options()->find($template->category_id)?->is_active) {
+            $document->category_id = $template->category_id;
+        }
 
         return view('docs.form', $this->formData($document) + [
-            'template' => $template,
+            'templates' => $templates->pluck('name', 'key'),
+            'template' => $template?->key,
             'content' => $this->templateContent($template, $request->string('title')->toString() ?: 'New document', $document),
         ]);
     }
@@ -342,10 +335,9 @@ class DocumentController extends Controller
         };
     }
 
-    private function templateContent(string $template, string $title, Document $document): string
+    private function templateContent(?DocumentTemplate $template, string $title, Document $document): string
     {
-        $file = resource_path("doc-templates/{$template}.md");
-        $content = is_file($file) ? (string) file_get_contents($file) : "# {{title}}\n";
+        $content = $template !== null ? $template->content : "# {{title}}\n";
         $product = $document->product_id ? Product::query()->find($document->product_id) : null;
 
         return strtr($content, [
@@ -369,7 +361,6 @@ class DocumentController extends Controller
                 ->mapWithKeys(fn ($r) => [$r->id => $r->code.' — '.$r->name]),
             'modules' => Module::query()->visibleTo($user)->orderBy('code')->get()
                 ->mapWithKeys(fn ($m) => [$m->id => $m->code.' — '.$m->name]),
-            'templates' => self::TEMPLATES,
             'canSetAllUsers' => Gate::allows('access.manage'),
         ];
     }

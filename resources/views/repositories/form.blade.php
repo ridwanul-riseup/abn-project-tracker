@@ -9,8 +9,8 @@
             <div class="row">
                 <x-form.input name="code" label="Repository ID" :value="$repository->code" required col="col-md-3 mb-3" help="e.g. OTT-WEB-BE" />
                 <x-form.input name="name" label="Repository name" :value="$repository->name" required col="col-md-5 mb-3" />
-                <x-form.option-select group="repository_layer" name="layer_id" label="Layer" :selected="$repository->layer_id" col="col-md-2 mb-3" />
-                <x-form.option-select group="repository_status" name="status_id" label="Status" :selected="$repository->status_id" col="col-md-2 mb-3" />
+                <x-form.option-select group="repository_layer" name="layer_id" label="Layer" :selected="$repository->layer_id" :use-default="! $repository->exists" col="col-md-2 mb-3" />
+                <x-form.option-select group="repository_status" name="status_id" label="Status" :selected="$repository->status_id" :use-default="! $repository->exists" col="col-md-2 mb-3" />
             </div>
             <div class="row">
                 <x-form.select name="product_id" label="Product" :options="$products" :selected="$repository->product_id" required col="col-md-4 mb-3" placeholder="— Select product —" />
@@ -36,7 +36,7 @@
                 <x-form.input name="issue_tracker_ref" label="Issue key / pattern" :value="$repository->issue_tracker_ref" col="col-md-4 mb-3" help="e.g. OTT-ADM-*" />
             </div>
             <div class="row">
-                <x-form.option-select group="deployment_target" name="deployment_target_id" label="Deployment target" :selected="$repository->deployment_target_id" col="col-md-4 mb-3" />
+                <x-form.option-select group="deployment_target" name="deployment_target_id" label="Deployment target" :selected="$repository->deployment_target_id" :use-default="! $repository->exists" col="col-md-4 mb-3" />
                 <x-form.select name="environment_ids[]" label="Environments" :options="$environments" :selected="$repository->exists ? $repository->environments->pluck('id') : []" :multiple="true" col="col-md-4 mb-3" help="Ctrl/Cmd-click to select several." />
             </div>
         </div></div>

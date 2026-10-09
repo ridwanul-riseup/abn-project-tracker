@@ -22,6 +22,13 @@ class OptionCatalog
 
     public const COLORS = ['secondary', 'primary', 'info', 'success', 'warning', 'danger', 'dark', 'light'];
 
+    /** Initial default selections (group => value); administrators change them in Global Settings. */
+    public const INITIAL_DEFAULTS = [
+        'task_status' => 'backlog',
+        'task_type' => 'feature',
+        'priority' => 'medium',
+    ];
+
     /**
      * @return array<string, array{name: string, description: string, usage: list<array{0: string, 1: string, 2: string}>, values: list<array{0: string, 1: string, 2?: string, 3?: string}>}>
      */
@@ -220,7 +227,7 @@ class OptionCatalog
             'document_category' => [
                 'name' => 'Documentation categories',
                 'description' => 'Categories used to organise Markdown documentation. The value is also used as the folder name for general (non-product) documents.',
-                'usage' => [['documents', 'category_id', 'Documents']],
+                'usage' => [['documents', 'category_id', 'Documents'], ['document_templates', 'category_id', 'Document templates']],
                 'values' => [
                     ['overview', 'Overview', 'primary'],
                     ['architecture', 'Architecture', 'info'],

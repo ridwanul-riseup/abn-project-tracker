@@ -18,7 +18,7 @@
                 <x-form.select name="repository_id" label="Repository" :options="$repositories" :selected="$task->repository_id" col="col-md-4 mb-3" />
                 <x-form.select name="module_id" label="Module" :options="$modules" :selected="$task->module_id" col="col-md-4 mb-3" />
                 <x-form.option-select group="task_type" name="type_id" label="Type" :selected="$task->type_id" required :placeholder="false" col="col-md-4 mb-3" />
-                <x-form.option-select group="task_status" name="status_id" label="Status" :selected="$task->status_id" :required="$editing" :placeholder="$editing ? false : '— Default (first open status) —'" col="col-md-4 mb-3" />
+                <x-form.option-select group="task_status" name="status_id" label="Status" :selected="$task->status_id" :required="$editing" :placeholder="$editing ? false : '— Default status —'" col="col-md-4 mb-3" />
                 <x-form.option-select group="priority" name="priority_id" label="Priority" :selected="$task->priority_id" required :placeholder="false" col="col-md-4 mb-3" />
                 @if ($canAssign)
                     <x-form.select name="assignee_id" label="Assignee" :options="$assignees" :selected="$task->assignee_id" placeholder="— Unassigned —" help="Must have access to the task's product, repository or module." col="col-md-4 mb-3" />

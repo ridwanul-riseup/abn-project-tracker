@@ -49,9 +49,9 @@
                     </div>
                 </div>
                 <div class="row">
-                    <x-form.option-select group="dependency_type" name="dependency_type_id" label="Dependency type" :selected="$dependency->dependency_type_id" col="col-md-4 mb-3" />
-                    <x-form.option-select group="criticality" name="criticality_id" label="Criticality" :selected="$dependency->criticality_id" col="col-md-4 mb-3" />
-                    <x-form.option-select group="dependency_status" name="status_id" label="Status" :selected="$dependency->status_id" col="col-md-4 mb-3" />
+                    <x-form.option-select group="dependency_type" name="dependency_type_id" label="Dependency type" :selected="$dependency->dependency_type_id" :use-default="! $dependency->exists" col="col-md-4 mb-3" />
+                    <x-form.option-select group="criticality" name="criticality_id" label="Criticality" :selected="$dependency->criticality_id" :use-default="! $dependency->exists" col="col-md-4 mb-3" />
+                    <x-form.option-select group="dependency_status" name="status_id" label="Status" :selected="$dependency->status_id" :use-default="! $dependency->exists" col="col-md-4 mb-3" />
                 </div>
                 <x-form.textarea name="description" label="Description" :value="$dependency->description" />
                 <x-form.textarea name="failure_impact" label="Failure impact" :value="$dependency->failure_impact" help="What breaks if the target is unavailable?" />

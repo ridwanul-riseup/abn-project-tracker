@@ -20,13 +20,13 @@
             <div class="col-md-2">
                 <select name="type" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All types</option>
-                    @foreach ($opts->for('application_type') as $o)<option value="{{ $o->id }}" @selected(request('type') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('application_type') as $o)<option value="{{ $o->id }}" @selected(request('type') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-2">
                 <select name="classification" class="form-select form-select-sm" data-autosubmit>
                     <option value="">Frontend/backend</option>
-                    @foreach ($opts->for('application_classification') as $o)<option value="{{ $o->id }}" @selected(request('classification') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('application_classification') as $o)<option value="{{ $o->id }}" @selected(request('classification') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-auto"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>

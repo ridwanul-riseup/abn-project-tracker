@@ -5,6 +5,7 @@
 use App\Models\Application;
 use App\Models\Clarification;
 use App\Models\ComponentDependency;
+use App\Models\DocumentTemplate;
 use App\Models\Module;
 use App\Models\OptionGroup;
 use App\Models\Product;
@@ -76,6 +77,8 @@ it('renders every screen for a super admin', function () {
         route('admin.users.access', userWithRole(Role::VIEWER, [[$this->ott, 'read']])),
         route('admin.roles.index'), route('admin.options.index'), route('admin.activity.index'),
         route('admin.options.show', OptionGroup::query()->where('key', 'task_status')->firstOrFail()),
+        route('admin.templates.index'), route('admin.templates.create'),
+        route('admin.templates.edit', DocumentTemplate::query()->firstOrFail()),
     ];
 
     foreach ($urls as $url) {

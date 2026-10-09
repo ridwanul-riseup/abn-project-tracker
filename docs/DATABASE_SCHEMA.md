@@ -25,7 +25,8 @@ Polymorphic columns (`*_type`) store short aliases from the enforced morph map i
 | Table | Key columns | Notes |
 | --- | --- | --- |
 | `option_groups` | `key` (unique), `name`, `description` | One per configurable dropdown (catalogue in `OptionCatalog`). |
-| `options` | `option_group_id`, `value` (unique per group, immutable), `label`, `description`, `color`, `behavior`, `sort_order`, `is_active` | Referenced by FK from inventory/task tables. `behavior` (`open`/`blocked`/`closed`) is used for `task_status`. |
+| `options` | `option_group_id`, `value` (unique per group, immutable), `label`, `description`, `color`, `behavior`, `sort_order`, `is_default`, `is_active` | Referenced by FK from inventory/task tables. `behavior` (`open`/`blocked`/`closed`) is used for `task_status`. At most one active `is_default` per group (enforced in `OptionController`); it is preselected on create forms. |
+| `document_templates` | `key` (unique, immutable), `name`, `description`, `category_id` → options (`document_category`, restrict on delete), `content`, `sort_order`, `is_active` | Templates offered on *New document*. Seeded once from `resources/doc-templates/*.md`. |
 
 Option groups: `task_status`, `task_type`, `priority`, `product_status`, `application_status`,
 `application_type`, `application_classification`, `repository_status`, `repository_layer`,

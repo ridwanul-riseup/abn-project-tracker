@@ -23,19 +23,19 @@
             <div class="col-md-2">
                 <select name="type" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All types</option>
-                    @foreach ($opts->for('dependency_type') as $o)<option value="{{ $o->id }}" @selected(request('type') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('dependency_type') as $o)<option value="{{ $o->id }}" @selected(request('type') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-2">
                 <select name="criticality" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All criticality</option>
-                    @foreach ($opts->for('criticality') as $o)<option value="{{ $o->id }}" @selected(request('criticality') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('criticality') as $o)<option value="{{ $o->id }}" @selected(request('criticality') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-2">
                 <select name="status" class="form-select form-select-sm" data-autosubmit>
                     <option value="">All statuses</option>
-                    @foreach ($opts->for('dependency_status') as $o)<option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->label }}</option>@endforeach
+                    @foreach ($opts->forFilter('dependency_status') as $o)<option value="{{ $o->id }}" @selected(request('status') == $o->id)>{{ $o->filterLabel() }}</option>@endforeach
                 </select>
             </div>
             <div class="col-md-auto"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>

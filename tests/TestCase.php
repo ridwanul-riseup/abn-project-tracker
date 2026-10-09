@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Database\Seeders\DocumentTemplateSeeder;
 use Database\Seeders\OptionSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,7 +23,7 @@ abstract class TestCase extends BaseTestCase
         File::ensureDirectoryExists($root);
 
         if (in_array(RefreshDatabase::class, class_uses_recursive(static::class), true)) {
-            $this->seed([RolesAndPermissionsSeeder::class, OptionSeeder::class]);
+            $this->seed([RolesAndPermissionsSeeder::class, OptionSeeder::class, DocumentTemplateSeeder::class]);
         }
     }
 }

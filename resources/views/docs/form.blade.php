@@ -3,7 +3,7 @@
                :breadcrumbs="['Documentation' => route('docs.index')] + ($editing ? [$document->title => route('docs.show', $document), 'Edit' => null] : ['New' => null])">
     <x-page-header :title="$editing ? 'Edit document' : 'New document'" :subtitle="$editing ? $document->path : 'The file path is generated from the product, category and title.'" />
 
-    @if (! $editing)
+    @if (! $editing && $templates->isNotEmpty())
         <form method="GET" action="{{ route('docs.create') }}" class="card card-body py-2 mb-3">
             <div class="row g-2 align-items-end">
                 <div class="col-md-4">
@@ -57,7 +57,7 @@
                     @if (! $editing)
                         <x-form.input name="slug" label="File name (optional)" :value="null" help="Lowercase letters, digits and dashes. Defaults to the title." />
                     @endif
-                    <x-form.option-select group="document_category" name="category_id" label="Category" :selected="$document->category_id" required :placeholder="false" />
+                    <x-form.option-select group="document_category" name="category_id" label="Category" :selected="$document->category_id" :use-default="! $document->exists" required :placeholder="false" />
                     <x-form.select name="product_id" label="Product" :options="$products" :selected="$document->product_id" placeholder="— Cross-product —" />
                     <x-form.select name="repository_id" label="Repository" :options="$repositories" :selected="$document->repository_id" />
                     <x-form.select name="module_id" label="Module" :options="$modules" :selected="$document->module_id" />
