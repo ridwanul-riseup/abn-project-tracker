@@ -10,10 +10,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "inertiajs/inertia-laravel": "^3.0",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
-        "laravel/wayfinder": "^0.1.14"
+        "league/commonmark": "^2.8"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
@@ -61,8 +60,7 @@
         ],
         "ci:check": [
             "Composer\\Config::disableProcessTimeout",
-            "npm run check",
-            "npm run types:check",
+            "npm run build",
             "@test"
         ],
         "types:check": [

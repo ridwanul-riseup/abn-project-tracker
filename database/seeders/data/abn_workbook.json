@@ -1,0 +1,866 @@
+{
+ "01-glossary": [
+  [
+   "Term",
+   "Meaning"
+  ],
+  [
+   "SHR",
+   "AB Shared Platform"
+  ],
+  [
+   "OTT",
+   "ABN+ OTT"
+  ],
+  [
+   "ABI",
+   "AB Intelligence / CRM"
+  ],
+  [
+   "ERP",
+   "ABOS ERP"
+  ],
+  [
+   "FE",
+   "Frontend"
+  ],
+  [
+   "BE",
+   "Backend"
+  ],
+  [
+   "INT",
+   "Integration"
+  ],
+  [
+   "DB",
+   "Database"
+  ],
+  [
+   "API",
+   "Application Programming Interface"
+  ],
+  [
+   "UAT",
+   "User Acceptance Testing"
+  ],
+  [
+   "ADR",
+   "Architecture Decision Record"
+  ]
+ ],
+ "02-products": [
+  [
+   "Product ID",
+   "Product",
+   "Description",
+   "Database",
+   "Primary Owner",
+   "Status"
+  ],
+  [
+   "SHR",
+   "AB Shared Platform",
+   "Shared authentication, users, organizations, roles, permissions and platform services",
+   "SHR-DB",
+   "Shared Platform",
+   "Planned"
+  ],
+  [
+   "OTT",
+   "ABN+ OTT",
+   "Streaming, VOD, live TV/sports, subscriptions, CMS and entitlement",
+   "OTT-DB",
+   "OTT Product",
+   "Planned"
+  ],
+  [
+   "ABI",
+   "AB Intelligence",
+   "CRM, AI orchestration, client portal and AutonOS",
+   "CRM-DB",
+   "ABI Product",
+   "Planned"
+  ],
+  [
+   "ERP",
+   "ABOS ERP",
+   "HR, attendance, inventory, procurement, finance and payroll",
+   "ERP-DB",
+   "ERP Product",
+   "Planned"
+  ]
+ ],
+ "03-applications": [
+  [
+   "Application ID",
+   "Product",
+   "Application",
+   "Layer",
+   "Repository IDs"
+  ],
+  [
+   "SHR-ADM",
+   "SHR",
+   "Admin Panel",
+   "FE/BE",
+   "SHR-ADM-FE; SHR-ADM-BE"
+  ],
+  [
+   "ERP-ADM",
+   "ERP",
+   "Admin Panel",
+   "FE/BE",
+   "ERP-ADM-FE; ERP-ADM-BE"
+  ],
+  [
+   "ABI-WEB",
+   "ABI",
+   "Website",
+   "FE/BE",
+   "ABI-WEB-FE; ABI-WEB-BE"
+  ],
+  [
+   "ABI-ADM",
+   "ABI",
+   "Admin Panel",
+   "Frontend",
+   "ABI-ADM-FE"
+  ],
+  [
+   "ABI-AUT",
+   "ABI",
+   "AutonOS",
+   "Frontend",
+   "ABI-AUT-FE"
+  ],
+  [
+   "ABI-CP",
+   "ABI",
+   "Client Portal",
+   "FE/BE",
+   "ABI-CP-FE; ABI-CP-BE"
+  ],
+  [
+   "OTT-ADM",
+   "OTT",
+   "Admin Panel",
+   "FE/BE",
+   "OTT-ADM-FE; OTT-ADM-BE"
+  ],
+  [
+   "OTT-ACT",
+   "OTT",
+   "Actor Dashboard",
+   "FE/BE",
+   "OTT-ACT-FE; OTT-ACT-BE"
+  ],
+  [
+   "OTT-WEB",
+   "OTT",
+   "Website",
+   "FE/BE",
+   "OTT-WEB-FE; OTT-WEB-BE"
+  ]
+ ],
+ "04-repositories": [
+  [
+   "#",
+   "Repo ID",
+   "Product",
+   "Application",
+   "Layer",
+   "Repository",
+   "Module",
+   "DB",
+   "API",
+   "Figma",
+   "Jira/Ticket",
+   "Dependency",
+   "Integration",
+   "Environment",
+   "Deployment",
+   "Status"
+  ],
+  [
+   "1.0",
+   "SHR-ADM-FE",
+   "AB Shared Platform",
+   "Admin Panel",
+   "Frontend",
+   "AB-Shared-Platform-Admin-Panel-Frontend-Design",
+   "Platform Admin",
+   "—",
+   "Shared Platform API",
+   "https://www.figma.com/design/pxd3L8BzbuCaF630VHt5ZF/AB-Digital-Ecosystem--Riseup-Labs-?node-id=4296-1285&p=f&t=0NWoDoSsOBYssAbv-0",
+   "SHR-*",
+   "SHR-ADM-BE",
+   "SHR-OTT-INT-001; SHR-ABI-INT-001; SHR-ERP-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "2.0",
+   "SHR-ADM-BE",
+   "AB Shared Platform",
+   "Admin Panel",
+   "Backend",
+   "AB-Shared-Platform-Admin-Panel-Backend",
+   "Platform Admin",
+   "SHR-DB",
+   "/api/v1/shared/*",
+   null,
+   "SHR-*",
+   "Shared DB",
+   "SHR-OTT-INT-001; SHR-ABI-INT-001; SHR-ERP-INT-001",
+   "dev/stage/uat/prod",
+   "API Server",
+   "Planned"
+  ],
+  [
+   "3.0",
+   "ERP-ADM-FE",
+   "ABOS ERP",
+   "Admin Panel",
+   "Frontend",
+   "https://github.com/riseup-labs/ABN-ERP-Frontend.git",
+   "ERP Admin",
+   "—",
+   "ERP API",
+   "https://www.figma.com/design/d7XWx5DEXY8JzGQK1cnu7V/ABOS-ERP--Riseup-Labs-?node-id=4296-1285&p=f&t=LTWSPUeA7oHk2Z08-0",
+   "ERP-*",
+   "ERP-ADM-BE; SHR-ADM-BE",
+   "SHR-ERP-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "4.0",
+   "ERP-ADM-BE",
+   "ABOS ERP",
+   "Admin Panel",
+   "Backend",
+   "ABOS-ERP-Admin-Panel-Backend",
+   "ERP Admin",
+   "ERP-DB",
+   "/api/v1/erp/*",
+   null,
+   "ERP-*",
+   "SHR-ADM-BE; ERP-DB",
+   "SHR-ERP-INT-001",
+   "dev/stage/uat/prod",
+   "API Server",
+   "Planned"
+  ],
+  [
+   "5.0",
+   "ABI-WEB-FE",
+   "AB Intelligence",
+   "Website",
+   "Frontend",
+   "https://github.com/riseup-labs/AB-Intelligence-Marketing-Website-Frontend.git",
+   "CRM Website",
+   "—",
+   "ABI API",
+   "https://www.figma.com/design/fskqLuO94CcV3lEAP9Zk0k/AB-Intelligence?node-id=38-4234&p=f&t=JQbhDFoiUaLOhlhs-0",
+   "ABI-*",
+   "ABI-WEB-BE",
+   "SHR-ABI-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "6.0",
+   "ABI-ADM-FE",
+   "AB Intelligence",
+   "Admin Panel",
+   "Frontend",
+   "https://github.com/riseup-labs/AB-Intelligence-Admin-Frontend.git",
+   "CRM Admin",
+   "—",
+   "ABI Admin API",
+   "https://www.figma.com/design/fskqLuO94CcV3lEAP9Zk0k/AB-Intelligence?node-id=198-32664&p=f&t=JQbhDFoiUaLOhlhs-0",
+   "ABI-*",
+   "ABI-WEB-BE; SHR-ADM-BE",
+   "SHR-ABI-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "7.0",
+   "ABI-AUT-FE",
+   "AB Intelligence",
+   "AutonOS",
+   "Frontend",
+   "AB-Intelligence(CRM)-AutonOs-Frontend-Design",
+   "Automation UI",
+   "—",
+   "AutonOS API",
+   "https://www.figma.com/design/fskqLuO94CcV3lEAP9Zk0k/AB-Intelligence?node-id=198-32663&p=f&t=JQbhDFoiUaLOhlhs-0",
+   "ABI-AUT-*",
+   "ABI-WEB-BE",
+   "ABI-AUT-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "8.0",
+   "ABI-CP-FE",
+   "AB Intelligence",
+   "Client Portal",
+   "Frontend",
+   "https://github.com/riseup-labs/AB-Intelligence-Client-Portal-Frontend.git",
+   "Portal UI",
+   "—",
+   "Client Portal API",
+   "https://www.figma.com/design/fskqLuO94CcV3lEAP9Zk0k/AB-Intelligence?node-id=198-32661&p=f&t=JQbhDFoiUaLOhlhs-0",
+   "ABI-CP-*",
+   "ABI-CP-BE; SHR-ADM-BE",
+   "SHR-ABI-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "9.0",
+   "ABI-CP-BE",
+   "AB Intelligence",
+   "Client Portal",
+   "Backend",
+   "AB-Intelligence(CRM)-Client-Portal-Backend",
+   "Portal",
+   "CRM-DB",
+   "/api/v1/abi/portal/*",
+   null,
+   "ABI-CP-*",
+   "SHR-ADM-BE; CRM-DB",
+   "SHR-ABI-INT-001",
+   "dev/stage/uat/prod",
+   "API Server",
+   "Planned"
+  ],
+  [
+   "10.0",
+   "ABI-WEB-BE",
+   "AB Intelligence",
+   "Website",
+   "Backend",
+   "AB-Intelligence(CRM)-Website-Backend",
+   "CRM Website",
+   "CRM-DB",
+   "/api/v1/abi/*",
+   null,
+   "ABI-*",
+   "SHR-ADM-BE; CRM-DB",
+   "SHR-ABI-INT-001; ABI-AUT-INT-001",
+   "dev/stage/uat/prod",
+   "API Server",
+   "Planned"
+  ],
+  [
+   "11.0",
+   "OTT-ADM-FE",
+   "ABN+ OTT",
+   "Admin Panel",
+   "Frontend",
+   "https://github.com/riseup-labs/ABN-OTT-Admin-Panel-Frontend.git",
+   "OTT CMS",
+   "—",
+   "OTT Admin API",
+   "https://www.figma.com/design/9wdplexS0zIQrUAMgTmJ6M/ABN--OTT--Riseup-Labs-?node-id=5038-4940&p=f&t=O5t84L5KjgSsA8sY-0",
+   "OTT-*",
+   "OTT-ADM-BE; SHR-ADM-BE",
+   "SHR-OTT-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "12.0",
+   "OTT-ACT-FE",
+   "ABN+ OTT",
+   "Actor Dashboard",
+   "Frontend",
+   "ABN-Plus-OTT-Actor-Dashboard-Frontend-Design",
+   "Actor",
+   "—",
+   "OTT Actor API",
+   "https://www.figma.com/design/9wdplexS0zIQrUAMgTmJ6M/ABN--OTT--Riseup-Labs-?node-id=5152-6026&p=f&t=O5t84L5KjgSsA8sY-0",
+   "OTT-ACT-*",
+   "OTT-ACT-BE; SHR-ADM-BE",
+   "SHR-OTT-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "13.0",
+   "OTT-WEB-FE",
+   "ABN+ OTT",
+   "Website",
+   "Frontend",
+   "https://github.com/riseup-labs/ABN-OTT-Frontend.git",
+   "OTT Consumer",
+   "—",
+   "OTT API",
+   "https://www.figma.com/design/9wdplexS0zIQrUAMgTmJ6M/ABN--OTT--Riseup-Labs-?node-id=4296-1285&p=f&t=UBN0iQwuutXj76cD-0",
+   "OTT-WEB-*",
+   "OTT-WEB-BE; SHR-ADM-BE",
+   "SHR-OTT-INT-001",
+   "dev/stage/uat/prod",
+   "Web/CDN",
+   "Planned"
+  ],
+  [
+   "14.0",
+   "OTT-ADM-BE",
+   "ABN+ OTT",
+   "Admin Panel",
+   "Backend",
+   "ABN-Plus-OTT-Admin-Panel-Backend",
+   "OTT CMS",
+   "OTT-DB",
+   "/api/v1/ott/admin/*",
+   null,
+   "OTT-ADM-*",
+   "SHR-ADM-BE; OTT-DB",
+   "SHR-OTT-INT-001",
+   "dev/stage/uat/prod",
+   "API Server",
+   "Planned"
+  ],
+  [
+   "15.0",
+   "OTT-ACT-BE",
+   "ABN+ OTT",
+   "Actor Dashboard",
+   "Backend",
+   "ABN-Plus-OTT-Actor-Dashboard-Backend",
+   "Actor",
+   "OTT-DB",
+   "/api/v1/ott/actor/*",
+   null,
+   "OTT-ACT-*",
+   "SHR-ADM-BE; OTT-DB",
+   "SHR-OTT-INT-001",
+   "dev/stage/uat/prod",
+   "API Server",
+   "Planned"
+  ],
+  [
+   "16.0",
+   "OTT-WEB-BE",
+   "ABN+ OTT",
+   "Website",
+   "Backend",
+   "ABN-Plus-OTT-Website-Backend",
+   "OTT Consumer",
+   "OTT-DB",
+   "/api/v1/ott/*",
+   null,
+   "OTT-WEB-*",
+   "SHR-ADM-BE; OTT-DB",
+   "SHR-OTT-INT-001; OTT-ABI-INT-001",
+   "dev/stage/uat/prod",
+   "API Server",
+   "Planned"
+  ]
+ ],
+ "05-modules-project-wise": [
+  [
+   "Module ID",
+   "Product",
+   "Application",
+   "Module",
+   "Primary Repository"
+  ],
+  [
+   "SHR-AUTH",
+   "SHR",
+   "Platform",
+   "Authentication",
+   "SHR-ADM-BE"
+  ],
+  [
+   "SHR-USER",
+   "SHR",
+   "Platform",
+   "Users",
+   "SHR-ADM-BE"
+  ],
+  [
+   "SHR-ORG",
+   "SHR",
+   "Platform",
+   "Organizations/Tenants",
+   "SHR-ADM-BE"
+  ],
+  [
+   "SHR-RBAC",
+   "SHR",
+   "Platform",
+   "Roles & Permissions",
+   "SHR-ADM-BE"
+  ],
+  [
+   "OTT-CONTENT",
+   "OTT",
+   "OTT",
+   "Content",
+   "OTT-WEB-BE"
+  ],
+  [
+   "OTT-SUB",
+   "OTT",
+   "OTT",
+   "Subscription",
+   "OTT-WEB-BE"
+  ],
+  [
+   "OTT-PAY",
+   "OTT",
+   "OTT",
+   "Payment",
+   "OTT-WEB-BE"
+  ],
+  [
+   "OTT-ENT",
+   "OTT",
+   "OTT",
+   "Entitlement",
+   "OTT-WEB-BE"
+  ],
+  [
+   "OTT-VOD",
+   "OTT",
+   "OTT",
+   "VOD",
+   "OTT-WEB-BE"
+  ],
+  [
+   "OTT-LIVE",
+   "OTT",
+   "OTT",
+   "Live TV",
+   "OTT-WEB-BE"
+  ],
+  [
+   "ABI-CRM",
+   "ABI",
+   "CRM",
+   "CRM",
+   "ABI-WEB-BE"
+  ],
+  [
+   "ABI-PORTAL",
+   "ABI",
+   "Client Portal",
+   "Client Portal",
+   "ABI-CP-BE"
+  ],
+  [
+   "ABI-AUTONOS",
+   "ABI",
+   "AutonOS",
+   "Automation/AI Agents",
+   "ABI-AUT-FE"
+  ],
+  [
+   "ERP-HR",
+   "ERP",
+   "ERP",
+   "HR",
+   "ERP-ADM-BE"
+  ],
+  [
+   "ERP-INV",
+   "ERP",
+   "ERP",
+   "Inventory",
+   "ERP-ADM-BE"
+  ],
+  [
+   "ERP-PROC",
+   "ERP",
+   "ERP",
+   "ERP",
+   "ERP-ADM-BE"
+  ],
+  [
+   "ERP-FIN",
+   "ERP",
+   "ERP",
+   "Finance",
+   "ERP-ADM-BE"
+  ]
+ ],
+ "06-databases": [
+  [
+   "DB ID",
+   "Database",
+   "Product",
+   "Owner",
+   "Used By",
+   "System of Record",
+   "Environment"
+  ],
+  [
+   "SHR-DB",
+   "shared_db",
+   "SHR",
+   "Shared Platform",
+   "ABI/OTT/ERP",
+   "Shared Platform",
+   "DEV/QA/UAT/PROD"
+  ],
+  [
+   "OTT-DB",
+   "ott_db",
+   "OTT",
+   "OTT",
+   "OTT repositories",
+   "OTT",
+   "DEV/QA/UAT/PROD"
+  ],
+  [
+   "CRM-DB",
+   "crm_db",
+   "ABI",
+   "ABI",
+   "ABI repositories",
+   "ABI",
+   "DEV/QA/UAT/PROD"
+  ],
+  [
+   "ERP-DB",
+   "erp_db",
+   "ERP",
+   "ERP",
+   "ERP repositories",
+   "ERP",
+   "DEV/QA/UAT/PROD"
+  ]
+ ],
+ "07-figma": [
+  [
+   "Figma ID",
+   "Product",
+   "Application",
+   "Design Type",
+   "Repository",
+   "Figma File",
+   "Status"
+  ],
+  [
+   "OTT-WEB-FIG-001",
+   "OTT",
+   "Website",
+   "UI/UX",
+   "OTT-WEB-FE",
+   "OTT Website",
+   "Planned"
+  ],
+  [
+   "OTT-ADM-FIG-001",
+   "OTT",
+   "Admin Panel",
+   "UI/UX",
+   "OTT-ADM-FE",
+   "OTT Admin",
+   "Planned"
+  ],
+  [
+   "OTT-ACT-FIG-001",
+   "OTT",
+   "Actor Dashboard",
+   "UI/UX",
+   "OTT-ACT-FE",
+   "Actor Dashboard",
+   "Planned"
+  ],
+  [
+   "ABI-WEB-FIG-001",
+   "ABI",
+   "Website",
+   "UI/UX",
+   "ABI-WEB-FE",
+   "ABI Website",
+   "Planned"
+  ],
+  [
+   "ABI-CP-FIG-001",
+   "ABI",
+   "Client Portal",
+   "UI/UX",
+   "ABI-CP-FE",
+   "Client Portal",
+   "Planned"
+  ],
+  [
+   "ERP-ADM-FIG-001",
+   "ERP",
+   "Admin Panel",
+   "UI/UX",
+   "ERP-ADM-FE",
+   "ERP Admin",
+   "Planned"
+  ],
+  [
+   "SHR-ADM-FIG-001",
+   "SHR",
+   "Admin Panel",
+   "UI/UX",
+   "SHR-ADM-FE",
+   "Shared Admin",
+   "Planned"
+  ]
+ ],
+ "08-dependencies": [
+  [
+   "Dependency ID",
+   "Source",
+   "Depends On",
+   "Dependency Type",
+   "Criticality",
+   "Failure Impact"
+  ],
+  [
+   "DEP-001",
+   "OTT-WEB-BE",
+   "SHR-ADM-BE",
+   "Authentication",
+   "Critical",
+   "OTT login unavailable"
+  ]
+ ],
+ "09-deployement": [
+  [
+   "Deployment ID",
+   "Repo",
+   "Environment",
+   "Infrastructure",
+   "Method",
+   "Branch",
+   "Version",
+   "Status"
+  ],
+  [
+   "OTT-WEB-BE-DEP-001",
+   "OTT-WEB-BE",
+   "DEV",
+   "AWS",
+   "CI/CD",
+   "develop",
+   "0.1.0",
+   "Planned"
+  ],
+  [
+   "OTT-WEB-BE-DEP-002",
+   "OTT-WEB-BE",
+   "QA",
+   "AWS",
+   "CI/CD",
+   "release/*",
+   "0.1.0",
+   "Planned"
+  ],
+  [
+   "SHR-ADM-BE-DEP-001",
+   "SHR-ADM-BE",
+   "DEV",
+   "AWS",
+   "CI/CD",
+   "develop",
+   "0.1.0",
+   "Planned"
+  ]
+ ],
+ "10-environments-discuss-with-na": [
+  [
+   "Environment ID",
+   "Name",
+   "Purpose",
+   "Deployment"
+  ],
+  [
+   "ENV-LOCAL",
+   "Local",
+   "Developer machine",
+   "Manual"
+  ],
+  [
+   "ENV-DEV",
+   "DEV",
+   "Active development",
+   "CI/CD"
+  ],
+  [
+   "ENV-QA",
+   "QA",
+   "Testing",
+   "CI/CD"
+  ],
+  [
+   "ENV-UAT",
+   "UAT",
+   "Client/business validation",
+   "CI/CD"
+  ],
+  [
+   "ENV-STG",
+   "Staging",
+   "Production-like validation",
+   "CI/CD"
+  ],
+  [
+   "ENV-PROD",
+   "Production",
+   "Live",
+   "Controlled CI/CD"
+  ]
+ ],
+ "11-releases": [
+  [
+   "Release ID",
+   "Product",
+   "Version",
+   "Repositories",
+   "Environment",
+   "Release Date",
+   "Status"
+  ],
+  [
+   "OTT-REL-001",
+   "OTT",
+   "0.1.0",
+   "OTT-WEB-FE; OTT-WEB-BE",
+   "DEV",
+   "TBD",
+   "Planned"
+  ],
+  [
+   "ABI-REL-001",
+   "ABI",
+   "0.1.0",
+   "ABI-CP-FE; ABI-CP-BE",
+   "DEV",
+   "TBD",
+   "Planned"
+  ],
+  [
+   "ERP-REL-001",
+   "ERP",
+   "0.1.0",
+   "ERP-ADM-FE; ERP-ADM-BE",
+   "DEV",
+   "TBD",
+   "Planned"
+  ]
+ ],
+ "12-credentials-discuss-with-nas": []
+}

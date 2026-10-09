@@ -1,50 +1,113 @@
 <?php
 
+use App\Models\AccessRule;
+use App\Models\Document;
+use App\Models\Module;
+use App\Models\Product;
+use App\Models\Repository;
+use App\Models\Role;
+use App\Models\User;
+use App\Support\Docs\DocumentService;
+use App\Support\Options\Options;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
-
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind different classes or traits.
-|
-*/
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
-
-function something()
+/**
+ * Create a user with the given role and optional scoped access rules.
+ *
+ * @param  list<array{0: Model|null, 1: string}>  $rules  [[$scopeModel|null(global), 'read'|'write'|'deny'], ...]
+ */
+function userWithRole(string $roleKey, array $rules = [], array $attributes = []): User
 {
-    // ..
+    $user = User::factory()->create([
+        'role_id' => Role::query()->where('key', $roleKey)->value('id'),
+        'is_active' => true,
+        ...$attributes,
+    ]);
+
+    foreach ($rules as [$scope, $permission]) {
+        grantAccess($user, $scope, $permission);
+    }
+
+    return $user;
+}
+
+function grantAccess(User $user, ?Model $scope, string $permission): AccessRule
+{
+    return AccessRule::query()->create([
+        'user_id' => $user->id,
+        'scope_type' => $scope?->getMorphClass() ?? 'global',
+        'scope_id' => $scope?->getKey(),
+        'permission' => $permission,
+    ]);
+}
+
+function superAdmin(): User
+{
+    return userWithRole(Role::SUPER_ADMIN);
+}
+
+function makeProduct(string $code, array $attributes = []): Product
+{
+    return Product::query()->create([
+        'code' => $code,
+        'name' => $attributes['name'] ?? "Product {$code}",
+        'slug' => $attributes['slug'] ?? Str::slug($code.'-product'),
+        ...$attributes,
+    ]);
+}
+
+function makeRepository(Product $product, string $code, array $attributes = []): Repository
+{
+    return Repository::query()->create([
+        'code' => $code,
+        'name' => $attributes['name'] ?? strtolower($code).'-service',
+        'product_id' => $product->id,
+        ...$attributes,
+    ]);
+}
+
+function makeModule(Product $product, string $code, array $attributes = []): Module
+{
+    return Module::query()->create([
+        'code' => $code,
+        'name' => $attributes['name'] ?? "Module {$code}",
+        'product_id' => $product->id,
+        ...$attributes,
+    ]);
+}
+
+function optionId(string $group, string $value): int
+{
+    $id = app(Options::class)->idFor($group, $value);
+    if ($id === null) {
+        throw new RuntimeException("Option {$group}.{$value} not seeded.");
+    }
+
+    return $id;
+}
+
+/**
+ * Create a registered Markdown document (real file + metadata row).
+ */
+function makeDocument(string $path, string $title, string $content, array $attributes = []): Document
+{
+    return app(DocumentService::class)->create([
+        'path' => $path,
+        'title' => $title,
+        'category_id' => optionId('document_category', 'overview'),
+        'visibility' => Document::VISIBILITY_INHERIT,
+        ...$attributes,
+    ], $content, User::query()->first() ?? superAdmin());
+}
+
+function docsRoot(): string
+{
+    return base_path((string) config('hub.docs.path'));
 }

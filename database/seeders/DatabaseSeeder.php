@@ -2,24 +2,30 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Support\Audit;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Safe initial data: roles, options, the initial Super Admin (from env),
+     * the workbook inventory and the shipped Markdown documents.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        Audit::disable();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        try {
+            $this->call([
+                RolesAndPermissionsSeeder::class,
+                OptionSeeder::class,
+                AdminUserSeeder::class,
+                WorkbookSeeder::class,
+                DocumentSeeder::class,
+                DemoUserSeeder::class,
+            ]);
+        } finally {
+            Audit::enable();
+        }
     }
 }
