@@ -35,7 +35,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Live site URLs &amp; credentials</span>
                         @can('update', $application)
-                            <a href="{{ route('applications.edit', $application) }}#live-site-urls" class="btn btn-sm btn-outline-primary">Manage</a>
+                            <a target="_blank" href="{{ route('applications.edit', $application) }}#live-site-urls" class="btn btn-sm btn-outline-primary">Manage</a>
                         @endcan
                     </div>
                     <div class="table-responsive">
@@ -44,29 +44,37 @@
                                 <tr>
                                     <th>Environment</th>
                                     <th>Site URL</th>
-                                    <th>Credential</th>
-                                    <th>User ID</th>
-                                    <th>Description</th>
-                                    <th>Password</th>
+                                    <th class="text-end">Credentials</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            @forelse ($credentialRows as $credential)
+                            @forelse ($siteUrls as $siteUrl)
                                 <tr>
-                                    <td class="small">{{ $credential->siteUrl->label ?: '—' }}</td>
-                                    <td class="small text-break-all"><a href="{{ $credential->siteUrl->url }}" rel="noopener noreferrer">{{ $credential->siteUrl->url }}</a></td>
-                                    <td class="small">{{ $credential->title }}</td>
-                                    <td class="small"><code>{{ $credential->account_login }}</code></td>
-                                    <td class="small text-muted">{{ $credential->short_description ?: '—' }}</td>
-                                    <td class="small"><span class="text-muted">••••••••</span></td>
+                                    <td class="small">{{ $siteUrl->label ?: '—' }}</td>
+                                    <td class="small text-break-all"><a href="{{ $siteUrl->url }}" rel="noopener noreferrer">{{ $siteUrl->url }}</a></td>
+                                    <td class="small text-end">
+                                        @if ($siteUrl->credentials->isEmpty())
+                                            <span class="text-muted">None</span>
+                                        @else
+                                            <button type="button" class="btn btn-sm btn-link p-0 align-baseline"
+                                                    data-bs-toggle="modal" data-bs-target="#site-url-creds-{{ $siteUrl->id }}">
+                                                View {{ $siteUrl->credentials->count() }} {{ str('credential')->plural($siteUrl->credentials->count()) }}
+                                            </button>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="6"><x-empty message="No site URLs or credentials registered yet." /></td></tr>
+                                <tr><td colspan="3"><x-empty message="No site URLs or credentials registered yet." /></td></tr>
                             @endforelse
                             </tbody>
                         </table>
                     </div>
-                    <x-list-pager :items="$credentialRows" />
+                    <x-list-pager :items="$siteUrls" />
+                    @foreach ($siteUrls as $siteUrl)
+                        @if ($siteUrl->credentials->isNotEmpty())
+                            @include('applications.partials.site-url-credentials-modal', ['siteUrl' => $siteUrl])
+                        @endif
+                    @endforeach
                 </div>
             @endif
             <div class="card mb-3" id="repositories">

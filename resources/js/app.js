@@ -1,12 +1,19 @@
 import 'bootstrap';
+import { hubConfirm, hubCopyPrompt } from './hub-dialogs';
 
 // Confirmation for destructive actions: <form data-confirm="Are you sure?">
 document.addEventListener('submit', (event) => {
     const form = event.target;
     const message = form.getAttribute('data-confirm');
-    if (message && !window.confirm(message)) {
-        event.preventDefault();
+    if (!message) {
+        return;
     }
+    event.preventDefault();
+    hubConfirm(message).then((confirmed) => {
+        if (confirmed) {
+            form.submit();
+        }
+    });
 });
 
 // Copy-to-clipboard: <button data-copy="text">
@@ -16,15 +23,16 @@ document.addEventListener('click', async (event) => {
         return;
     }
     event.preventDefault();
+    const value = button.getAttribute('data-copy');
     try {
-        await navigator.clipboard.writeText(button.getAttribute('data-copy'));
+        await navigator.clipboard.writeText(value);
         const original = button.innerHTML;
         button.innerHTML = '<i class="bi bi-check2"></i> Copied';
         setTimeout(() => {
             button.innerHTML = original;
         }, 1500);
     } catch {
-        window.prompt('Copy this value:', button.getAttribute('data-copy'));
+        await hubCopyPrompt(value);
     }
 });
 
@@ -130,11 +138,19 @@ if (siteUrlRoot) {
         if (removeUrl) {
             event.preventDefault();
             const message = removeUrl.getAttribute('data-confirm');
-            if (message && !window.confirm(message)) {
-                return;
+            const proceed = () => {
+                removeUrl.closest('[data-site-url-row]').remove();
+                reindex();
+            };
+            if (message) {
+                hubConfirm(message).then((confirmed) => {
+                    if (confirmed) {
+                        proceed();
+                    }
+                });
+            } else {
+                proceed();
             }
-            removeUrl.closest('[data-site-url-row]').remove();
-            reindex();
             return;
         }
 
@@ -156,11 +172,19 @@ if (siteUrlRoot) {
         if (removeCred) {
             event.preventDefault();
             const message = removeCred.getAttribute('data-confirm');
-            if (message && !window.confirm(message)) {
-                return;
+            const proceed = () => {
+                removeCred.closest('[data-credential-row]').remove();
+                reindex();
+            };
+            if (message) {
+                hubConfirm(message).then((confirmed) => {
+                    if (confirmed) {
+                        proceed();
+                    }
+                });
+            } else {
+                proceed();
             }
-            removeCred.closest('[data-credential-row]').remove();
-            reindex();
             return;
         }
 

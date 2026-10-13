@@ -1,5 +1,6 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.min.css';
+@import 'sweetalert2/dist/sweetalert2.min.css';
 
 :root {
     --hub-sidebar-width: 240px;
@@ -8,6 +9,14 @@
 body {
     background: #f5f6f8;
     font-size: 0.925rem;
+}
+
+.swal2-popup {
+    font-size: 0.925rem;
+}
+
+.swal2-actions {
+    gap: 0.25rem;
 }
 
 .hub-sidebar {

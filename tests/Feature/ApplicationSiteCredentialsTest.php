@@ -105,6 +105,34 @@ it('loads credentials on edit without exposing passwords and updates them in one
     expect($credential->fresh()->password)->toBe('New-Pass-456');
 });
 
+it('shows site urls on the application detail page even without credentials', function () {
+    $this->application->siteUrls()->create([
+        'label' => 'Development',
+        'url' => 'https://dev-only.example.com',
+        'sort_order' => 0,
+    ]);
+
+    $this->actingAs($this->admin)->get(route('applications.show', $this->application))->assertOk()
+        ->assertSee('https://dev-only.example.com')
+        ->assertSee('Development')
+        ->assertSee('None', false);
+});
+
+it('lists one row per site url and opens credentials in a modal', function () {
+    $url = $this->application->siteUrls()->create(['label' => 'Production', 'url' => 'https://prod.example.com', 'sort_order' => 0]);
+    $url->credentials()->createMany([
+        ['title' => 'Admin', 'account_login' => 'prod_admin', 'password' => 'Hidden-1', 'sort_order' => 0],
+        ['title' => 'Support', 'account_login' => 'support_user', 'password' => 'Hidden-2', 'sort_order' => 1],
+    ]);
+
+    $this->actingAs($this->admin)->get(route('applications.show', $this->application))->assertOk()
+        ->assertSee('View 2 credentials')
+        ->assertSee('site-url-creds-'.$url->id)
+        ->assertSee('prod_admin')
+        ->assertSee('support_user')
+        ->assertSeeInOrder(['Production', 'https://prod.example.com', 'View 2 credentials']);
+});
+
 it('shows masked credentials on the application detail page and hides them without permission', function () {
     $url = $this->application->siteUrls()->create(['url' => 'https://prod.example.com', 'sort_order' => 0]);
     $url->credentials()->create([
@@ -117,6 +145,7 @@ it('shows masked credentials on the application detail page and hides them witho
     $viewer = userWithRole(Role::VIEWER, [[$this->product, 'read']]);
 
     $this->actingAs($this->admin)->get(route('applications.show', $this->application))->assertOk()
+        ->assertSee('View 1 credential')
         ->assertSee('prod_admin')
         ->assertSee('Admin')
         ->assertDontSee('Hidden-1')

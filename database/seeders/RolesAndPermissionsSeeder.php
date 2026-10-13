@@ -40,9 +40,16 @@ class RolesAndPermissionsSeeder extends Seeder
             $role->is_system = true;
             $role->save();
 
+            $defaults = Capabilities::defaultsByRole()[$key];
+
             if ($isNew || $key === Role::SUPER_ADMIN) {
                 $role->permissions()->sync(
-                    Permission::query()->whereIn('key', Capabilities::defaultsByRole()[$key])->pluck('id')
+                    Permission::query()->whereIn('key', $defaults)->pluck('id')
+                );
+            } elseif ($role->is_system) {
+                // Add new default permissions without removing admin grants or revocations of non-default keys.
+                $role->permissions()->syncWithoutDetaching(
+                    Permission::query()->whereIn('key', $defaults)->pluck('id')
                 );
             }
         }

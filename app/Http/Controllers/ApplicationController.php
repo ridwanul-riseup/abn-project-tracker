@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ApplicationRequest;
 use App\Models\Application;
-use App\Models\ApplicationSiteCredential;
 use App\Models\Module;
 use App\Models\Product;
 use App\Models\Repository;
@@ -82,14 +81,10 @@ class ApplicationController extends Controller
             'modules' => $this->paginateList(Module::query()->visibleTo($user)->where('application_id', $application->id)->with('status')->orderBy('code'), 'modules'),
             'clarifications' => $this->clarificationsFor($application),
             'canViewCredentials' => $canViewCredentials,
-            'credentialRows' => $canViewCredentials
+            'siteUrls' => $canViewCredentials
                 ? $this->paginateList(
-                    ApplicationSiteCredential::query()
-                        ->with('siteUrl')
-                        ->whereIn('application_site_url_id', $application->siteUrls()->pluck('id'))
-                        ->orderBy('application_site_url_id')
-                        ->orderBy('sort_order'),
-                    'credentials'
+                    $application->siteUrls()->with('credentials')->orderBy('sort_order')->orderBy('id'),
+                    'site_urls'
                 )
                 : null,
         ]);
