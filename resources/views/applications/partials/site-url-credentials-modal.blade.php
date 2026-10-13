@@ -15,8 +15,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="small text-muted text-break-all mb-3">
-                    <a href="{{ $siteUrl->url }}" rel="noopener noreferrer">{{ $siteUrl->url }}</a>
+                <p class="small text-muted mb-3">
+                    <x-ext-link :url="$siteUrl->url" />
                 </p>
                 <div class="table-responsive">
                     <table class="table table-sm mb-0">

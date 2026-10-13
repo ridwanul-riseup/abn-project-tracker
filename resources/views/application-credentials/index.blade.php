@@ -31,7 +31,7 @@
                     <tr>
                         <td class="small"><a href="{{ route('applications.show', $app) }}">{{ $app->code }}</a><div class="text-muted">{{ $app->name }}</div></td>
                         <td class="small">{{ $credential->siteUrl->label ?: '—' }}</td>
-                        <td class="small text-break-all">{{ $credential->siteUrl->url }}</td>
+                        <td class="small"><x-ext-link :url="$credential->siteUrl->url" /></td>
                         <td class="small">{{ $credential->title }}</td>
                         <td class="small"><code>{{ $credential->account_login }}</code></td>
                         <td class="small text-muted">{{ $credential->short_description ?: '—' }}</td>

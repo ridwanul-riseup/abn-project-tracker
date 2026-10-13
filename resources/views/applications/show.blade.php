@@ -35,7 +35,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Live site URLs &amp; credentials</span>
                         @can('update', $application)
-                            <a target="_blank" href="{{ route('applications.edit', $application) }}#live-site-urls" class="btn btn-sm btn-outline-primary">Manage</a>
+                            <a href="{{ route('applications.edit', $application) }}#live-site-urls" class="btn btn-sm btn-outline-primary">Manage</a>
                         @endcan
                     </div>
                     <div class="table-responsive">
@@ -51,7 +51,7 @@
                             @forelse ($siteUrls as $siteUrl)
                                 <tr>
                                     <td class="small">{{ $siteUrl->label ?: '—' }}</td>
-                                    <td class="small text-break-all"><a href="{{ $siteUrl->url }}" rel="noopener noreferrer">{{ $siteUrl->url }}</a></td>
+                                    <td class="small"><x-ext-link :url="$siteUrl->url" /></td>
                                     <td class="small text-end">
                                         @if ($siteUrl->credentials->isEmpty())
                                             <span class="text-muted">None</span>
