@@ -22,6 +22,14 @@ npm run build
 php artisan serve                # http://localhost:8000
 ```
 
+Or run it with Docker (app + MySQL 8.4; see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#docker)):
+
+```bash
+cp .env.docker.example .env.docker   # set DB_PASSWORD, MYSQL_PASSWORD (same value) and MYSQL_ROOT_PASSWORD
+docker compose up -d --build         # http://localhost:8000
+docker compose logs app | grep "Generated password"   # initial Super Admin password (first start only)
+```
+
 Run the checks:
 
 ```bash

@@ -1,0 +1,31 @@
+services:
+  app:
+    build: .
+    image: ab-project-hub:latest
+    restart: unless-stopped
+    env_file: .env.docker
+    ports:
+      - "${HUB_HTTP_PORT:-8000}:80"
+    volumes:
+      - hub-storage:/var/www/html/storage
+      - hub-docs:/var/www/html/docs
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    env_file: .env.docker
+    volumes:
+      - hub-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  hub-db:
+  hub-storage:
+  hub-docs:

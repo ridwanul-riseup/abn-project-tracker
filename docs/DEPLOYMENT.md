@@ -120,6 +120,49 @@ Which option the team uses is **Needs Clarification**. In either case:
   `Permissions-Policy`, and (with `HUB_CSP_ENABLED=true`) a strict CSP.
 - Health check endpoint: `GET /up`.
 
+## Docker
+
+The repository ships a `Dockerfile` (PHP 8.5 + Apache, assets built with Node 22 in a separate
+stage, production Composer dependencies only) and a `docker-compose.yml` with MySQL 8.4.
+
+```bash
+cp .env.docker.example .env.docker   # fill in the passwords; .env.docker is git-ignored
+docker compose up -d --build         # http://localhost:8000 (change with HUB_HTTP_PORT=8080)
+docker compose logs -f app
+```
+
+On every start the container entrypoint (`docker/entrypoint.sh`):
+
+1. uses `APP_KEY` from `.env.docker`; if it is empty, it generates a key once and keeps it in the
+   storage volume, so sessions survive restarts;
+2. waits for the database, then runs `php artisan migrate --force`;
+3. on the **first** start runs the full `db:seed` (roles, options, templates, initial Super Admin,
+   workbook inventory, shipped documents). The generated admin password appears once in
+   `docker compose logs app`. On later starts it only runs `RolesAndPermissionsSeeder`, which keeps
+   admin edits. Set `HUB_SEED_ON_FIRST_RUN=false` to skip seeding. `DemoUserSeeder` refuses to run
+   because `APP_ENV=production`;
+4. caches config, routes and views (`php artisan optimize`) and starts Apache.
+
+| Volume | Mounted at | Contents |
+| --- | --- | --- |
+| `hub-db` | `/var/lib/mysql` | MySQL data |
+| `hub-docs` | `/var/www/html/docs` | Managed Markdown documents. Filled from the image on first creation |
+| `hub-storage` | `/var/www/html/storage` | Logs, generated `APP_KEY`, first-seed marker |
+
+Notes:
+
+- Back up `hub-db` and `hub-docs` together, e.g.
+  `docker compose exec db sh -c 'mysqldump --single-transaction -u root -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' > hub.sql`.
+- Documents edited in the hub live in the `hub-docs` volume, not in the Git checkout. Newer shipped
+  documents in a rebuilt image are not copied into an existing volume.
+- If you delete `hub-db` but keep `hub-storage`, remove the volume's
+  `storage/app/private/.docker-seeded` file (or the whole volume) so the next start seeds again.
+- Changing `.env.docker` needs `docker compose up -d` (recreates the container and rebuilds the config cache).
+- For HTTPS, put a reverse proxy (nginx, Traefik, Caddy) in front of the container and set
+  `APP_URL=https://…` and `SESSION_SECURE_COOKIE=true`. Laravel's trusted proxies are not configured
+  yet; configure them in `bootstrap/app.php` if the proxy terminates TLS.
+- Run Artisan commands with `docker compose exec app php artisan <command>`.
+
 ## Backups
 
 - Daily MySQL dump (`mysqldump --single-transaction`).
