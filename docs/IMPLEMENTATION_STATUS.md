@@ -12,7 +12,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 | --- | --- | --- | --- | --- | --- |
 | A | Dashboard (visible products with counts, my tasks, blocked tasks, recent docs, activity) | Done | `DashboardController`, `resources/views/dashboard.blade.php`, `ActivityFeed` | No charts; no per-user customisation | — |
 | B | Products (CRUD, archive/restore, creator gets write) | Done | `ProductController`, `resources/views/products/*` | No hard delete | — |
-| C | Applications | Done | `ApplicationController`, `resources/views/applications/*` | — | — |
+| C | Applications (incl. live site URLs and encrypted credentials per URL) | Done | `ApplicationController`, `ApplicationSiteCredentialController`, `SiteUrlSync`, `resources/views/applications/*`, `application-credentials/index` | Passwords never shown in lists; edit form does not pre-fill decrypted passwords | — |
 | D | Repositories (filters, sensitive notes, environments, modules, docs, tasks) | Done | `RepositoryController`, `resources/views/repositories/*` | No Git host API integration (by design) | — |
 | E | Modules (primary + linked repositories) | Done | `ModuleController`, `resources/views/modules/*` | — | — |
 | F | Markdown documentation (real `.md` files, templates, preview, revisions, conflict detection, link rewriting, Git links) | Done | `DocumentController`, `app/Support/Docs/*`, `resources/views/docs/*`, `Admin/DocumentTemplateController` (templates in DB; `resources/doc-templates/*` are seed only) | Path fixed after creation; metadata-only revisions; no Git operations; no UI to register files added via Git | Add "scan and register" admin screen |
@@ -80,7 +80,7 @@ A screen existing does not make a feature "Done"; each Done item has passing fea
 Most recent run, executed on 2026-10-09 with `php artisan test`, `vendor/bin/phpstan analyse`
 and `vendor/bin/pint --test` against MySQL 8.4 (`ab_project_hub_test`):
 
-- Pest: **114 passed, 0 failed** (808 assertions)
+- Pest: **119 passed, 0 failed** (844 assertions)
 - PHPStan (level 7): **0 errors**
 - Pint: **passed**
 - `npm run build`: succeeded

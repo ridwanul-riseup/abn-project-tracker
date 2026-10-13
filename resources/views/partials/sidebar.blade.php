@@ -8,6 +8,7 @@
         'Inventory' => [
             ['Products', 'products.index', 'bi-box-seam', 'products.*', Gate::check('products.view')],
             ['Applications', 'applications.index', 'bi-window-stack', 'applications.*', Gate::check('applications.view')],
+            ['App credentials', 'application-credentials.index', 'bi-key', 'application-credentials.*', Gate::check('applications.view')],
             ['Repositories', 'repositories.index', 'bi-git', 'repositories.*', Gate::check('repositories.view')],
             ['Modules', 'modules.index', 'bi-puzzle', 'modules.*', Gate::check('modules.view')],
             ['Dependencies', 'dependencies.index', 'bi-diagram-3', 'dependencies.*', Gate::check('dependencies.view')],

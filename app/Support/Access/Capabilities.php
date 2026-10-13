@@ -89,6 +89,7 @@ class Capabilities
         return [
             ...$crud('Products', 'products', 'products'),
             ...$crud('Applications', 'applications', 'applications'),
+            'applications.view_credentials' => ['Applications', 'View application credentials', 'See and manage live site URLs and login credentials (passwords stay encrypted and masked).'],
             ...$crud('Repositories', 'repositories', 'repositories'),
             'repositories.view_sensitive' => ['Repositories', 'View sensitive technical notes', 'See and edit the "sensitive notes" field of readable repositories.'],
             ...$crud('Modules', 'modules', 'modules'),
@@ -135,8 +136,8 @@ class Capabilities
 
         return [
             Role::SUPER_ADMIN => $all,
-            Role::PROJECT_ADMIN => [...$view, ...$manageContent, 'products.create', 'repositories.view_sensitive', 'audit.view'],
-            Role::PROJECT_MANAGER => [...$view, ...$manageContent],
+            Role::PROJECT_ADMIN => [...$view, ...$manageContent, 'products.create', 'applications.view_credentials', 'repositories.view_sensitive', 'audit.view'],
+            Role::PROJECT_MANAGER => [...$view, ...$manageContent, 'applications.view_credentials'],
             Role::DEVELOPER => [...$view, 'docs.create', 'docs.update', 'tasks.update_assigned', 'tasks.comment'],
             Role::QA_ENGINEER => [...$view, 'tasks.create', 'tasks.update_assigned', 'tasks.comment'],
             Role::VIEWER => $view,

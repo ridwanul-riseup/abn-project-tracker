@@ -49,6 +49,7 @@ assigned on a product, repository or module.
 | `applications.create` | ✔ | ✔ | ✔ | | | |
 | `applications.update` | ✔ | ✔ | ✔ | | | |
 | `applications.archive` | ✔ | ✔ | ✔ | | | |
+| `applications.view_credentials` | ✔ | ✔ | ✔ | | | |
 | **Repositories** | | | | | | |
 | `repositories.view` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
 | `repositories.create` | ✔ | ✔ | ✔ | | | |
@@ -216,6 +217,8 @@ assigned on the record or one of its ancestors.
 | Edit product / application / repository / module | `<feature>.update` | write on the record |
 | Archive or restore them | `<feature>.archive` | write on the record |
 | Create application | `applications.create` | write on the product |
+| Manage live site URLs and credentials on an application | `applications.view_credentials` + `applications.update` | write on the application |
+| View credential rows (masked password) | `applications.view_credentials` | read on the application |
 | Create repository / module | `repositories.create` / `modules.create` | write on the selected application, or on the product if none |
 | Move a record to another product or application | the create permission | write on the new scope |
 | Create / edit / delete dependency | `dependencies.create` / `.update` / `.delete` | write on the source, read on the target |

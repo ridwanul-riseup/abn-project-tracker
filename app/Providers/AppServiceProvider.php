@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\AccessRule;
 use App\Models\ApiReference;
 use App\Models\Application;
+use App\Models\ApplicationSiteCredential;
+use App\Models\ApplicationSiteUrl;
 use App\Models\Clarification;
 use App\Models\ComponentDependency;
 use App\Models\DatabaseReference;
@@ -94,6 +96,8 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             'product' => Product::class,
             'application' => Application::class,
+            'application_site_url' => ApplicationSiteUrl::class,
+            'application_site_credential' => ApplicationSiteCredential::class,
             'repository' => Repository::class,
             'module' => Module::class,
             'document' => Document::class,

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\RoleAssignmentController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\ApplicationSiteCredentialController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\ClarificationController;
@@ -60,6 +61,10 @@ Route::middleware('auth')->group(function () {
     }
 
     Route::resource('dependencies', DependencyController::class)->except('show')->middlewareFor('index', 'can:dependencies.view');
+
+    Route::get('application-credentials', [ApplicationSiteCredentialController::class, 'index'])
+        ->middleware('can:applications.view')
+        ->name('application-credentials.index');
 
     Route::get('clarifications', [ClarificationController::class, 'index'])->middleware('can:clarifications.view')->name('clarifications.index');
     Route::post('clarifications/{clarification}/resolve', [ClarificationController::class, 'resolve'])->name('clarifications.resolve');

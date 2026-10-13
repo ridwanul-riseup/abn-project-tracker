@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Application;
 use App\Models\Repository;
 use App\Models\User;
 use App\Support\Access\AccessService;
@@ -39,6 +40,12 @@ class InventoryPolicy
     {
         return $this->access->can($user, 'repositories.view_sensitive', $repository)
             && $this->access->canRead($user, $repository);
+    }
+
+    public function viewCredentials(User $user, Application $application): bool
+    {
+        return $this->access->can($user, 'applications.view_credentials', $application)
+            && $this->access->canRead($user, $application);
     }
 
     private function allows(User $user, Model $model, ?string $permission): bool

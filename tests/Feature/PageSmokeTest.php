@@ -37,7 +37,7 @@ function smokeUrls(Product $ott, $doc, $task): array
     $urls = [
         route('dashboard'), route('search', ['q' => 'ott']), route('profile.edit'),
         route('products.index'), route('products.show', $ott), route('products.edit', $ott), route('products.create'),
-        route('applications.index'), route('applications.create'),
+        route('applications.index'), route('applications.create'), route('application-credentials.index'),
         route('repositories.index'), route('repositories.show', $repo), route('repositories.edit', $repo), route('repositories.create'),
         route('modules.index'), route('modules.create'),
         route('dependencies.index'), route('dependencies.create'),

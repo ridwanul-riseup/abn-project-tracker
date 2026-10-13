@@ -90,3 +90,90 @@ document.querySelectorAll('select[data-scope-target]').forEach((scopeType) => {
     scopeType.addEventListener('change', refresh);
     refresh();
 });
+
+// Application site URLs + nested credentials (create/edit application form).
+const siteUrlRoot = document.querySelector('[data-nested-site-urls]');
+if (siteUrlRoot) {
+    const urlList = siteUrlRoot.querySelector('[data-site-url-list]');
+    const urlTemplate = document.getElementById('hub-site-url-template');
+    const credTemplate = document.getElementById('hub-credential-template');
+    let nextUrlIndex = urlList.querySelectorAll('[data-site-url-row]').length;
+
+    const reindex = () => {
+        urlList.querySelectorAll('[data-site-url-row]').forEach((row, urlIndex) => {
+            row.querySelectorAll('[name^="site_urls["]').forEach((input) => {
+                input.name = input.name.replace(/site_urls\[\d+]/, `site_urls[${urlIndex}]`);
+            });
+            row.querySelectorAll('[data-credential-row]').forEach((credRow, credIndex) => {
+                credRow.querySelectorAll('[name*="[credentials]["]').forEach((input) => {
+                    input.name = input.name.replace(
+                        /site_urls\[\d+]\[credentials\]\[\d+]/,
+                        `site_urls[${urlIndex}][credentials][${credIndex}]`,
+                    );
+                });
+            });
+        });
+        nextUrlIndex = urlList.querySelectorAll('[data-site-url-row]').length;
+    };
+
+    siteUrlRoot.addEventListener('click', (event) => {
+        const addUrl = event.target.closest('[data-add-site-url]');
+        if (addUrl) {
+            event.preventDefault();
+            const html = urlTemplate.innerHTML.replaceAll('__URL__', String(nextUrlIndex));
+            urlList.insertAdjacentHTML('beforeend', html);
+            nextUrlIndex += 1;
+            return;
+        }
+
+        const removeUrl = event.target.closest('[data-remove-site-url]');
+        if (removeUrl) {
+            event.preventDefault();
+            const message = removeUrl.getAttribute('data-confirm');
+            if (message && !window.confirm(message)) {
+                return;
+            }
+            removeUrl.closest('[data-site-url-row]').remove();
+            reindex();
+            return;
+        }
+
+        const addCred = event.target.closest('[data-add-credential]');
+        if (addCred) {
+            event.preventDefault();
+            const urlRow = addCred.closest('[data-site-url-row]');
+            const urlIndex = Array.from(urlList.querySelectorAll('[data-site-url-row]')).indexOf(urlRow);
+            const credList = urlRow.querySelector('[data-credential-list]');
+            const credIndex = credList.querySelectorAll('[data-credential-row]').length;
+            const html = credTemplate.innerHTML
+                .replaceAll('__URL__', String(urlIndex))
+                .replaceAll('__CRED__', String(credIndex));
+            credList.insertAdjacentHTML('beforeend', html);
+            return;
+        }
+
+        const removeCred = event.target.closest('[data-remove-credential]');
+        if (removeCred) {
+            event.preventDefault();
+            const message = removeCred.getAttribute('data-confirm');
+            if (message && !window.confirm(message)) {
+                return;
+            }
+            removeCred.closest('[data-credential-row]').remove();
+            reindex();
+            return;
+        }
+
+        const toggle = event.target.closest('[data-password-toggle]');
+        if (toggle) {
+            event.preventDefault();
+            const input = toggle.parentElement.querySelector('input[type="password"], input[type="text"]');
+            if (!input) {
+                return;
+            }
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            toggle.querySelector('i').className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+        }
+    });
+}

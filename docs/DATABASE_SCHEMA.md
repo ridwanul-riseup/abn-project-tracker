@@ -9,6 +9,13 @@ Polymorphic columns (`*_type`) store short aliases from the enforced morph map i
 `api`, `database`, `figma`, `environment`, `deployment`, `release`, `integration`,
 `dependency`, `clarification`, `user`, `role`, `option`, `access_rule`, `role_assignment`, `task_comment`).
 
+## Application site URLs and credentials
+
+| Table | Key columns | Notes |
+| --- | --- | --- |
+| `application_site_urls` | `application_id` → applications (cascade), `label`, `url`, `sort_order` | Live environments for an application. |
+| `application_site_credentials` | `application_site_url_id` → application_site_urls (cascade), `title`, `account_login`, `password` (encrypted), `short_description`, `sort_order` | Passwords use Laravel's `encrypted` cast; never shown in list views. |
+
 ## Users, roles and permissions
 
 | Table | Key columns | Notes |

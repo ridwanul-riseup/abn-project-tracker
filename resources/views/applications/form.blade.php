@@ -18,6 +18,10 @@
             </div>
             <x-form.textarea name="description" label="Description" :value="$application->description" />
             <x-form.textarea name="notes" label="Notes" :value="$application->notes" />
+            @include('applications.partials.site-urls-section', [
+                'canManageSiteCredentials' => $canManageSiteCredentials,
+                'siteUrls' => $siteUrls,
+            ])
             <button class="btn btn-primary">{{ $editing ? 'Save changes' : 'Create application' }}</button>
             <a href="{{ $editing ? route('applications.show', $application) : route('applications.index') }}" class="btn btn-link">Cancel</a>
         </form>

@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ApplicationRequest;
 use App\Models\Application;
+use App\Models\ApplicationSiteCredential;
 use App\Models\Module;
 use App\Models\Product;
 use App\Models\Repository;
+use App\Support\Applications\SiteUrlSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -48,12 +51,20 @@ class ApplicationController extends Controller
         return view('applications.form', [
             'application' => new Application(['product_id' => $product?->id]),
             'products' => $products,
+            'canManageSiteCredentials' => Gate::allows('applications.view_credentials')
+                && ($product === null || Gate::allows('create-in', ['applications.create', $product])),
+            'siteUrls' => collect(),
         ]);
     }
 
-    public function store(ApplicationRequest $request): RedirectResponse
+    public function store(ApplicationRequest $request, SiteUrlSync $sync): RedirectResponse
     {
-        $application = Application::query()->create($request->validated());
+        $application = DB::transaction(function () use ($request, $sync) {
+            $application = Application::query()->create($request->applicationAttributes());
+            $sync->sync($application, $request->siteUrls(), $request->canManageSiteCredentials());
+
+            return $application;
+        });
 
         return redirect()->route('applications.show', $application)->with('status', 'Application created.');
     }
@@ -63,11 +74,24 @@ class ApplicationController extends Controller
         $this->authorizeView($application);
         $user = $this->user();
 
+        $canViewCredentials = Gate::allows('viewCredentials', $application);
+
         return view('applications.show', [
             'application' => $application->load(['product', 'applicationType', 'classification', 'status']),
             'repositories' => $this->paginateList(Repository::query()->visibleTo($user)->where('application_id', $application->id)->with(['layer', 'status'])->orderBy('code'), 'repositories'),
             'modules' => $this->paginateList(Module::query()->visibleTo($user)->where('application_id', $application->id)->with('status')->orderBy('code'), 'modules'),
             'clarifications' => $this->clarificationsFor($application),
+            'canViewCredentials' => $canViewCredentials,
+            'credentialRows' => $canViewCredentials
+                ? $this->paginateList(
+                    ApplicationSiteCredential::query()
+                        ->with('siteUrl')
+                        ->whereIn('application_site_url_id', $application->siteUrls()->pluck('id'))
+                        ->orderBy('application_site_url_id')
+                        ->orderBy('sort_order'),
+                    'credentials'
+                )
+                : null,
         ]);
     }
 
@@ -76,16 +100,23 @@ class ApplicationController extends Controller
         $this->authorizeView($application);
         Gate::authorize('update', $application);
 
+        $application->load(['siteUrls.credentials']);
+
         return view('applications.form', [
             'application' => $application,
             'products' => [$application->product_id => $application->product->code.' — '.$application->product->name]
                 + $this->productChoicesFor('applications.create'),
+            'canManageSiteCredentials' => Gate::allows('viewCredentials', $application) && Gate::allows('update', $application),
+            'siteUrls' => $application->siteUrls,
         ]);
     }
 
-    public function update(ApplicationRequest $request, Application $application): RedirectResponse
+    public function update(ApplicationRequest $request, Application $application, SiteUrlSync $sync): RedirectResponse
     {
-        $application->update($request->validated());
+        DB::transaction(function () use ($request, $application, $sync) {
+            $application->update($request->applicationAttributes());
+            $sync->sync($application, $request->siteUrls(), $request->canManageSiteCredentials());
+        });
 
         return redirect()->route('applications.show', $application)->with('status', 'Application updated.');
     }

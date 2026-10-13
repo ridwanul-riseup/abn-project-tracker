@@ -86,6 +86,14 @@ class Application extends Model implements HasAccessScope
         return $this->hasMany(Module::class);
     }
 
+    /**
+     * @return HasMany<ApplicationSiteUrl, $this>
+     */
+    public function siteUrls(): HasMany
+    {
+        return $this->hasMany(ApplicationSiteUrl::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     public function auditLabel(): string
     {
         return $this->code.' — '.$this->name;

@@ -30,6 +30,45 @@
             </div></div>
         </div>
         <div class="col-lg-8">
+            @if ($canViewCredentials)
+                <div class="card mb-3" id="credentials">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Live site URLs &amp; credentials</span>
+                        @can('update', $application)
+                            <a href="{{ route('applications.edit', $application) }}#live-site-urls" class="btn btn-sm btn-outline-primary">Manage</a>
+                        @endcan
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Environment</th>
+                                    <th>Site URL</th>
+                                    <th>Credential</th>
+                                    <th>User ID</th>
+                                    <th>Description</th>
+                                    <th>Password</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @forelse ($credentialRows as $credential)
+                                <tr>
+                                    <td class="small">{{ $credential->siteUrl->label ?: '—' }}</td>
+                                    <td class="small text-break-all"><a href="{{ $credential->siteUrl->url }}" rel="noopener noreferrer">{{ $credential->siteUrl->url }}</a></td>
+                                    <td class="small">{{ $credential->title }}</td>
+                                    <td class="small"><code>{{ $credential->account_login }}</code></td>
+                                    <td class="small text-muted">{{ $credential->short_description ?: '—' }}</td>
+                                    <td class="small"><span class="text-muted">••••••••</span></td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="6"><x-empty message="No site URLs or credentials registered yet." /></td></tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <x-list-pager :items="$credentialRows" />
+                </div>
+            @endif
             <div class="card mb-3" id="repositories">
                 <div class="card-header">Related repositories</div>
                 <div class="table-responsive"><table class="table table-sm mb-0">
